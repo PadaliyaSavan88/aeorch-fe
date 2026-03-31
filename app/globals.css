@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --brand: #2563eb;
+    --brand-dark: #1d4ed8;
+    --accent: #06b6d4;
+    --navy: #0f172a;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply text-navy-900 antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-brand-600 text-white font-semibold text-sm hover:bg-brand-700 active:bg-brand-800 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-slate-200 bg-white text-navy-900 font-semibold text-sm hover:bg-slate-50 transition-colors duration-150;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-brand-600 text-brand-600 font-semibold text-sm hover:bg-brand-50 transition-colors duration-150;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-navy-900 placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-shadow;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl border border-slate-100 shadow-sm;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold text-navy-900 tracking-tight;
+  }
+
+  .section-subtitle {
+    @apply text-lg text-slate-500 max-w-2xl;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold;
+  }
+}
+
+/* Prose styles for blog content */
+.prose-brand {
+  @apply prose prose-slate max-w-none;
+}
+
+.prose-brand h2 {
+  @apply text-2xl font-bold text-navy-900 mt-10 mb-4;
+}
+
+.prose-brand h3 {
+  @apply text-xl font-semibold text-navy-900 mt-8 mb-3;
+}
+
+.prose-brand p {
+  @apply text-slate-600 leading-relaxed mb-5;
+}
+
+.prose-brand a {
+  @apply text-brand-600 hover:text-brand-700 underline underline-offset-2;
+}
+
+.prose-brand ul {
+  @apply list-disc list-inside space-y-2 text-slate-600 mb-5;
+}
+
+.prose-brand strong {
+  @apply font-semibold text-navy-900;
+}
+
+/* Score ring animation */
+@keyframes score-fill {
+  from { stroke-dashoffset: 283; }
+}
