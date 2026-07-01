@@ -9,6 +9,14 @@ import { Clock, Calendar, ArrowLeft, ArrowRight } from 'lucide-react';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aeorch.com';
 
+function ogImagePath(post: { title: string; category: string }): string {
+  return `/api/og?title=${encodeURIComponent(post.title)}&category=${encodeURIComponent(post.category)}`;
+}
+
+function ogImageUrl(post: { title: string; category: string }): string {
+  return `${siteUrl}${ogImagePath(post)}`;
+}
+
 export async function generateStaticParams() {
   return getAllPosts().map(p => ({ slug: p.slug }));
 }
@@ -30,8 +38,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: `${siteUrl}/blog/${post.slug}`,
       publishedTime: post.publishedAt,
       authors: [post.author],
+      images: [{ url: ogImageUrl(post), width: 1200, height: 630, alt: post.title }],
     },
-    twitter: { card: 'summary_large_image', title: post.title, description: post.description },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.description,
+      images: [ogImageUrl(post)],
+    },
   };
 }
 
@@ -68,10 +82,23 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     ],
   };
 
+  const faqJsonLd = post.faq.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: post.faq.map(item => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: { '@type': 'Answer', text: item.answer },
+    })),
+  } : null;
+
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      {faqJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      )}
       <AuthHeader />
       <main className="flex-1 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 md:py-16">
@@ -107,10 +134,34 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </div>
           </header>
 
+          {/* Cover image */}
+          <img
+            src={ogImagePath(post)}
+            alt={`${post.title} — Aeorch ${post.category} guide`}
+            width={1200}
+            height={630}
+            className="w-full rounded-2xl mb-10"
+          />
+
           {/* Content */}
           <div className="prose-brand">
             <MDXRemote source={post.content} />
           </div>
+
+          {/* FAQ */}
+          {post.faq.length > 0 && (
+            <section className="mt-12">
+              <h2 className="text-2xl font-bold text-navy-900 mb-6">Frequently Asked Questions</h2>
+              <div className="space-y-6">
+                {post.faq.map(item => (
+                  <div key={item.question}>
+                    <h3 className="font-semibold text-navy-900 mb-1.5">{item.question}</h3>
+                    <p className="text-slate-600 leading-relaxed">{item.answer}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* CTA */}
           <div className="mt-12 p-8 rounded-2xl bg-gradient-hero text-white text-center">

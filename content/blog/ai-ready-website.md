@@ -1,17 +1,24 @@
 ---
-title: "How to Make Your Website AI-Ready in 2025 (Complete Checklist)"
-description: "A practical step-by-step guide to making your website discoverable and citable by ChatGPT, Perplexity, Claude, Gemini and other AI tools. Covers llm.txt, ai-plugin.json, robots.txt, schema markup and more."
+title: "How to Make Your Website AI-Ready (Checklist)"
+description: "A step-by-step guide to making your website discoverable by ChatGPT, Perplexity, Claude and Gemini. Covers llms.txt, robots.txt, and schema markup."
 publishedAt: "2025-03-18"
 author: "Aeorch Team"
 category: "AI Compatibility"
 keywords:
   - "how to optimize website for answer engines"
   - "make website ai ready"
-  - "llm.txt file"
+  - "llms.txt file"
   - "ai plugin json"
   - "how to improve aeo score"
   - "website ai compatibility"
   - "seo audit tool"
+faq:
+  - question: "What makes a website 'AI-ready'?"
+    answer: "A site that AI crawlers can access (robots.txt allows GPTBot, ClaudeBot, PerplexityBot), that exposes a llms.txt summary file, and that has structured data (FAQPage, Article, HowTo schema) so AI models can confidently extract and cite it."
+  - question: "Do I need both llms.txt and ai-plugin.json?"
+    answer: "llms.txt is the higher-priority file today — it's a widely adopted convention AI assistants check for a quick site summary. ai-plugin.json matters mainly if you expose an API that AI agents can call directly."
+  - question: "How do I know if my site is already AI-ready?"
+    answer: "Run a free scan at Aeorch (/scan). It checks robots.txt AI bot access, llms.txt presence, structured data, and content depth in one pass and returns a prioritized fix list."
 ---
 
 ## What Does "AI-Ready" Mean for a Website?
@@ -19,7 +26,7 @@ keywords:
 An **AI-ready website** is one that:
 
 1. Can be crawled and read by AI bots (GPTBot, ClaudeBot, PerplexityBot, etc.)
-2. Provides AI-specific discovery files (`llm.txt`, `ai-plugin.json`)
+2. Provides AI-specific discovery files (`llms.txt`, `ai-plugin.json`)
 3. Has structured content that AI can confidently extract and cite
 4. Has enough trust signals for LLMs to reference it as a credible source
 
@@ -58,11 +65,11 @@ User-agent: PerplexityBot
 Allow: /
 ```
 
-## Step 2: Create an llm.txt File
+## Step 2: Create an llms.txt File
 
-`llm.txt` is an emerging standard (similar to `robots.txt` but for LLMs) that tells AI models which content on your site is most important and how to summarize it.
+`llms.txt` is an emerging standard (similar to `robots.txt` but for LLMs) that tells AI models which content on your site is most important and how to summarize it.
 
-Place a file at `yourdomain.com/llm.txt` with the following structure:
+Place a file at `yourdomain.com/llms.txt` with the following structure:
 
 ```
 # Site: Your Website Name
@@ -77,7 +84,7 @@ Place a file at `yourdomain.com/llm.txt` with the following structure:
 - /blog/guide-2: Title of guide — brief description
 ```
 
-Aeorch auto-generates a complete `llm.txt` file from your crawled pages, ready to download and upload to your domain.
+Aeorch auto-generates a complete `llms.txt` file from your crawled pages, ready to download and upload to your domain.
 
 ## Step 3: Add an ai-plugin.json File
 
@@ -157,7 +164,7 @@ AI models avoid citing thin content. Each substantive page should:
 Use this checklist to audit your site:
 
 - [ ] robots.txt allows major AI bots
-- [ ] llm.txt file exists at root
+- [ ] llms.txt file exists at root
 - [ ] ai-plugin.json exists at /.well-known/
 - [ ] FAQPage schema on Q&A pages
 - [ ] Open Graph tags on all pages
@@ -174,7 +181,7 @@ Checking all of these manually across every page of your website is tedious. Aeo
 
 1. Enter your URL
 2. Get a score for each dimension (SEO, AEO, GEO, AI Compatibility, Authority)
-3. Download your auto-generated `llm.txt` and `ai-plugin.json` files
+3. Download your auto-generated `llms.txt` and `ai-plugin.json` files
 4. Get a prioritized list of issues to fix
 
 The free plan covers 20 pages per month — enough to audit most small websites completely.
@@ -183,7 +190,7 @@ The free plan covers 20 pages per month — enough to audit most small websites 
 
 - [OpenAI GPTBot: usage policies and documentation](https://platform.openai.com/docs/gptbot)
 - [Anthropic: ClaudeBot and web crawling](https://support.anthropic.com/en/articles/8896518-does-anthropic-crawl-the-web-and-how-can-site-owners-block-the-crawler)
-- [llmstxt.org: the llm.txt standard](https://llmstxt.org)
+- [llmstxt.org: the llms.txt standard](https://llmstxt.org)
 - [Google Search Central: robots.txt introduction](https://developers.google.com/search/docs/crawling-indexing/robots/intro)
 
-[Run your free AI-readiness audit now →](/scan)
+For unblocking specific AI crawlers step-by-step, see [how to unblock GPTBot and ClaudeBot in robots.txt](/blog/unblock-ai-bots-robots-txt), or check the [complete SEO, AEO, GEO audit checklist](/blog/complete-website-audit-checklist) for the full picture.

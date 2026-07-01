@@ -4,6 +4,11 @@ import matter from 'gray-matter';
 
 const BLOG_DIR = path.join(process.cwd(), 'content', 'blog');
 
+export interface BlogFaqItem {
+  question: string;
+  answer: string;
+}
+
 export interface BlogPost {
   slug: string;
   title: string;
@@ -12,6 +17,7 @@ export interface BlogPost {
   author: string;
   category: string;
   keywords: string[];
+  faq: BlogFaqItem[];
   readingTime: number;
   content: string;
 }
@@ -39,6 +45,7 @@ export function getAllPosts(): Omit<BlogPost, 'content'>[] {
         author: data.author || 'Aeorch Team',
         category: data.category || 'SEO',
         keywords: data.keywords || [],
+        faq: data.faq || [],
         readingTime: estimateReadingTime(content),
       };
     })
@@ -60,6 +67,7 @@ export function getPost(slug: string): BlogPost | null {
         author: data.author || 'Aeorch Team',
         category: data.category || 'SEO',
         keywords: data.keywords || [],
+        faq: data.faq || [],
         readingTime: estimateReadingTime(content),
         content,
       };

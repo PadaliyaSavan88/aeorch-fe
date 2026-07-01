@@ -1,6 +1,6 @@
 ---
-title: "What is AEO (Answer Engine Optimization) and Why It Matters in 2025"
-description: "AEO is the practice of optimizing your website so AI answer engines like ChatGPT, Perplexity and Google AI Overviews cite you as a source. Learn what it is, why it matters, and how to measure your AEO score."
+title: "What Is AEO (Answer Engine Optimization)?"
+description: "AEO is optimizing your website so AI answer engines like ChatGPT and Perplexity cite you as a source. Learn what it is and how to measure your score."
 publishedAt: "2025-03-01"
 author: "Aeorch Team"
 category: "AEO"
@@ -10,6 +10,14 @@ keywords:
   - "answer engine optimization audit"
   - "how to improve aeo score"
   - "aeo vs seo"
+  - "aeo score"
+faq:
+  - question: "What does AEO stand for?"
+    answer: "AEO stands for Answer Engine Optimization — the practice of structuring content so AI answer engines like ChatGPT, Perplexity, and Google AI Overviews can accurately extract and cite it."
+  - question: "Is AEO the same as SEO?"
+    answer: "No. SEO optimizes for ranking in a list of search results; AEO optimizes for being directly quoted or paraphrased inside an AI-generated answer. They share tactics like structured data, but the goal and format differ."
+  - question: "How do I check my AEO score for free?"
+    answer: "Run a free scan at Aeorch (/scan). It checks FAQPage schema, question-based headings, HowTo schema, Article schema, Speakable schema, and BreadcrumbList schema, then returns a 0-100 AEO score with fixes."
 ---
 
 ## What is AEO (Answer Engine Optimization)?
@@ -108,4 +116,4 @@ Check your `robots.txt` file. Many sites accidentally block AI crawlers like GPT
 - [Schema.org FAQPage specification](https://schema.org/FAQPage)
 - [OpenAI GPTBot documentation](https://platform.openai.com/docs/gptbot)
 
-Ready to check your AEO score? [Run a free audit on your website →](/scan)
+For the full picture of how AEO fits alongside traditional SEO and GEO, see the [complete SEO, AEO, GEO audit checklist](/blog/complete-website-audit-checklist).

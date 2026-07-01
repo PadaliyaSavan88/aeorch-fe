@@ -34,7 +34,8 @@ function ScanFlow() {
     setError('');
     setStage('discovering');
     try {
-      const { data } = await scanApi.discover(url);
+      const { data: body } = await scanApi.discover(url);
+      const data = body.data;
       setDiscover(data);
       if (data.requiresConfirmation) {
         setStage('confirm');
@@ -51,7 +52,8 @@ function ScanFlow() {
     setError('');
     setStage('queued');
     try {
-      const { data } = await scanApi.create(url, confirm);
+      const { data: body } = await scanApi.create(url, confirm);
+      const data = body.data;
       setScanId(data._id);
       setStage('polling');
       pollScan(data._id);
@@ -64,7 +66,8 @@ function ScanFlow() {
   function pollScan(id: string) {
     const interval = setInterval(async () => {
       try {
-        const { data } = await scanApi.get(id);
+        const { data: body } = await scanApi.get(id);
+        const data = body.data;
         if (data.status === 'completed') {
           clearInterval(interval);
           router.push(`/report/${id}`);
@@ -108,11 +111,12 @@ function ScanFlow() {
 
               <form onSubmit={handleDiscover} className="flex flex-col gap-4">
                 <input
-                  type="url"
+                  type="text"
+                  inputMode="url"
                   value={url}
                   onChange={e => setUrl(e.target.value)}
                   className="input-field !py-4 text-base"
-                  placeholder="https://yourwebsite.com"
+                  placeholder="yourwebsite.com"
                   required
                   disabled={stage === 'discovering'}
                 />

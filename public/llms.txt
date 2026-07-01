@@ -1,0 +1,56 @@
+# Aeorch
+
+> Free SEO, AEO (Answer Engine Optimization), GEO (Generative Engine Optimization), Authority and AI Compatibility audit tool. Scan any website and get a scored report with actionable fixes for ranking in Google, ChatGPT, Perplexity, Claude and Gemini.
+
+## Product
+
+- [https://aeorch.com/](https://aeorch.com/): Aeorch — free SEO, AEO (Answer Engine Optimization), GEO (Generative Engine Optimization), Authority and AI Compatibility audit tool.
+- [https://aeorch.com/scan](https://aeorch.com/scan): Run a free audit of any website across SEO, AEO, GEO, Authority and AI Compatibility, with a scored report and fix recommendations.
+- [https://aeorch.com/features](https://aeorch.com/features): Overview of what Aeorch checks: structured data, AI crawler access, sitemap health, authority signals, and more.
+- [https://aeorch.com/about](https://aeorch.com/about): About Aeorch and why AI-era search visibility requires more than traditional SEO.
+- [https://aeorch.com/contact](https://aeorch.com/contact): Contact Aeorch for support, partnerships, or higher scan volume.
+
+## Blog
+
+### AEO
+
+- [10 Common AEO Mistakes Hurting Your AI Visibility](https://aeorch.com/blog/common-aeo-mistakes): From blocked AI crawlers to hidden FAQ schema, here are 10 AEO mistakes that quietly prevent AI answer engines from citing your content.
+- [HowTo Schema Markup: A Complete AEO Guide](https://aeorch.com/blog/howto-schema-markup-guide): HowTo schema structures step-by-step content for AI extraction. Here's the exact JSON-LD format, required fields, and when not to use it.
+- [How to Add FAQ Schema Markup (Step-by-Step)](https://aeorch.com/blog/faq-schema-markup-guide): FAQPage JSON-LD lets AI engines extract Q&A content directly. Here's the exact markup, where to put it, and common validation mistakes to avoid.
+- [7 Ways AEO Differs From Traditional SEO](https://aeorch.com/blog/aeo-vs-seo-differences): AEO and SEO share some tactics but optimize for different outcomes. Here are 7 concrete differences, from ranking format to what counts as success.
+- [What Is an AEO Score and How Is It Calculated?](https://aeorch.com/blog/what-is-aeo-score): An AEO score (0-100) measures FAQPage schema, question headings, HowTo markup, and AI bot access. Here's exactly how each factor is weighted.
+- [Free AEO Checker: Audit Your Answer Engine Score](https://aeorch.com/blog/free-aeo-checker): A free AEO checker scans for FAQPage schema, question headings, and AI bot access, then scores it 0-100. Here's how to run one and fix what it finds.
+- [What Is AEO (Answer Engine Optimization)?](https://aeorch.com/blog/what-is-aeo): AEO is optimizing your website so AI answer engines like ChatGPT and Perplexity cite you as a source. Learn what it is and how to measure your score.
+
+### AI Compatibility
+
+- [How to Unblock GPTBot and ClaudeBot in Robots.txt](https://aeorch.com/blog/unblock-ai-bots-robots-txt): Exact robots.txt rules to allow GPTBot, ClaudeBot, and PerplexityBot without opening your site to every scraper. Copy-paste examples included.
+- [How to Write an llms.txt File (With Examples)](https://aeorch.com/blog/how-to-write-llms-txt): llms.txt is a plain-text index of your site for AI assistants. Here's the exact format, a real example, and where to host it.
+- [Is Your Site Blocked From GPTBot or ClaudeBot?](https://aeorch.com/blog/check-ai-crawler-access): A three-minute manual check plus a free automated way to see if GPTBot, ClaudeBot, or PerplexityBot are blocked from crawling your website.
+- [AI Search Visibility Checker for ChatGPT & Claude](https://aeorch.com/blog/ai-search-visibility-checker): An AI search visibility checker tests whether ChatGPT, Claude, Perplexity and Gemini can access, read, and cite your website. Here's what to check and why.
+- [How to Make Your Website AI-Ready (Checklist)](https://aeorch.com/blog/ai-ready-website): A step-by-step guide to making your website discoverable by ChatGPT, Perplexity, Claude and Gemini. Covers llms.txt, robots.txt, and schema markup.
+
+### Authority
+
+- [AI Citations: Why They're the New Backlinks](https://aeorch.com/blog/ai-citations-new-backlinks): Being cited in an AI-generated answer functions like a backlink used to — a trust signal and a traffic source. Here's how to earn AI citations.
+- [Website Authority Checker: What It Measures](https://aeorch.com/blog/website-authority-checker): Authority checkers look at trust pages, author transparency, and external validation — signals AI models weigh before citing a source. Here's what to fix.
+
+### GEO
+
+- [Does Publish Date Affect AEO and GEO Rankings?](https://aeorch.com/blog/content-freshness-ai-search): Publish dates feed GEO's trust signals, but a stale date paired with outdated content hurts more than the date alone. How freshness actually factors in.
+- [How to Improve Your GEO Score: 9 Tactics](https://aeorch.com/blog/improve-geo-score): 9 concrete tactics to raise your GEO score: authorship, dates, citations, content depth, fluency, and more, ranked by typical impact.
+- [How to Get Cited by ChatGPT and Perplexity](https://aeorch.com/blog/optimize-content-for-ai-citations): Concrete content changes that correlate with higher AI citation rates: direct answers, structured Q&A, authorship, and outbound citations of your own.
+- [What Is a GEO Score? Your AI Ranking Explained](https://aeorch.com/blog/what-is-geo-score): A GEO score (0-100) measures content depth, authorship, publication dates, and citations — the trust signals LLMs weigh before referencing a source.
+- [What Is GEO? A Beginner's Guide to AI Search](https://aeorch.com/blog/what-is-geo): GEO (Generative Engine Optimization) means making content LLMs trust enough to cite. Here's what that means and how it differs from SEO.
+- [GEO Checker: Test If AI Engines Can Cite Your Site](https://aeorch.com/blog/geo-checker): A GEO checker measures whether your content has the depth, authorship, and citations LLMs need to trust it as a source. Here's how GEO checking works.
+
+### SEO
+
+- [The Complete SEO, AEO, GEO Audit Checklist](https://aeorch.com/blog/complete-website-audit-checklist): A single checklist covering SEO, AEO, GEO, Authority, and AI Compatibility — five dimensions, one scan, ranked by what to fix first.
+- [Local SEO and AEO for Small Businesses](https://aeorch.com/blog/local-seo-aeo-small-business): AI assistants now answer 'best plumber near me' directly. Here's how small businesses get cited, beyond just a Google Business Profile.
+- [SaaS SEO in 2026: Ranking When AI Answers](https://aeorch.com/blog/saas-seo-ai-search): When AI assistants answer 'best tool for X' directly, SaaS SEO needs comparison-ready content and structured data more than keyword-stuffed landing pages.
+- [E-Commerce SEO in the Age of AI Search](https://aeorch.com/blog/ecommerce-seo-ai-search): AI shopping assistants summarize product comparisons directly. Here's what e-commerce sites need beyond traditional Product schema to stay visible.
+- [Technical SEO Checklist for 2026 (15 Items)](https://aeorch.com/blog/technical-seo-checklist-2026): 15 technical SEO items to audit in 2026: Core Web Vitals, canonicals, structured data, crawlability, and more — with what breaks each one.
+- [Google AI Overviews Explained: SEO Impact in 2026](https://aeorch.com/blog/google-ai-overviews-seo): Google AI Overviews answer queries directly above search results, reducing clicks. Here's how they're generated and what actually helps you get cited.
+- [SEO Rank Checker: See Where You Rank for Free](https://aeorch.com/blog/seo-rank-checker): A free SEO rank checker audits titles, meta tags, and Core Web Vitals instead of just showing keyword position. Here's how to use one properly.
+- [SEO vs AEO vs GEO: The Complete 2025 Guide](https://aeorch.com/blog/seo-aeo-geo-guide): SEO, AEO and GEO are three distinct strategies for the modern web. Learn how they differ, work together, and how to audit all three for free.

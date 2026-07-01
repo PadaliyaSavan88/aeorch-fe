@@ -43,9 +43,10 @@ export default function Hero() {
             className="flex flex-col sm:flex-row gap-3"
           >
             <input
-              type="url"
+              type="text"
+              inputMode="url"
               name="url"
-              placeholder="https://yourwebsite.com"
+              placeholder="yourwebsite.com"
               className="flex-1 px-5 py-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-400 text-sm"
               required
             />
