@@ -73,6 +73,10 @@ export const scanApi = {
 
   getReport: (id: string) => api.get(`/scans/${id}/report`),
 
+  getReportHtml: (id: string) => api.get(`/scans/${id}/report/html`, { responseType: 'blob' }),
+
+  getReportPdf: (id: string) => api.get(`/scans/${id}/report/pdf`, { responseType: 'blob' }),
+
   reportUrl: (id: string) =>
     `${BASE}/scans/${id}/report`,
 };

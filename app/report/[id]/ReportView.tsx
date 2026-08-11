@@ -12,7 +12,6 @@ import SiteThemeProvider, { useSiteTheme } from '@/components/site/SiteThemeProv
 import AppShell from '@/components/site/AppShell';
 import { SITE_ACCENT } from '@/lib/siteTheme';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -578,6 +577,14 @@ function ReportBody({ id }: { id: string }) {
       .catch(() => {}); // trend is a nice-to-have — fail silently, don't block the report
   }, [data]);
 
+  async function openFullHtmlReport() {
+    const res = await scanApi.getReportHtml(id);
+    const url = URL.createObjectURL(res.data);
+    // Deliberately not revoking the object URL immediately — the new tab needs it to still be
+    // valid while it loads; the browser reclaims it on that tab's unload.
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+
   if (loading) {
     return (
       <AppShell>
@@ -653,7 +660,7 @@ function ReportBody({ id }: { id: string }) {
           <Link href="/agency/competitors" className="transition-colors hover:!border-[#3CD070] hover:!text-[#3CD070]" style={{ border: `1px solid ${theme.border}`, color: theme.textPrimary, padding: '10px 16px', borderRadius: 8, fontWeight: 600, fontSize: 13 }}>
             Compare competitors
           </Link>
-          <Link href="/agency/export" style={{ background: '#2A4736', color: '#F9F9F8', padding: '10px 16px', borderRadius: 8, fontWeight: 600, fontSize: 13 }}>
+          <Link href={`/agency/export?scanId=${_id}`} style={{ background: '#2A4736', color: '#F9F9F8', padding: '10px 16px', borderRadius: 8, fontWeight: 600, fontSize: 13 }}>
             Export PDF
           </Link>
         </div>
@@ -789,9 +796,9 @@ function ReportBody({ id }: { id: string }) {
       {/* Footer */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, color: theme.textSecondary, borderTop: `1px solid ${theme.border}`, paddingTop: 20, marginTop: 8 }}>
         <span>Powered by <span style={{ fontWeight: 600, color: theme.textPrimary }}>Aeorch</span></span>
-        <a href={`${API}/scans/${_id}/report/html`} target="_blank" rel="noopener noreferrer" className="transition-colors hover:!text-[#3CD070]" style={{ display: 'flex', alignItems: 'center', gap: 4, color: theme.textSecondary }}>
+        <button onClick={openFullHtmlReport} className="transition-colors hover:!text-[#3CD070]" style={{ display: 'flex', alignItems: 'center', gap: 4, color: theme.textSecondary, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, padding: 0 }}>
           Full HTML report <ExternalLink className="w-3 h-3" />
-        </a>
+        </button>
       </div>
     </AppShell>
   );
