@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
-  Zap, ChevronDown, ChevronUp, ExternalLink,
+  ChevronDown, ChevronUp, ExternalLink,
   CheckCircle2, XCircle, Info,
   Bot, FileText, Globe, Search, Cpu, BookOpen, ShieldCheck,
 } from 'lucide-react';
 import { scanApi } from '@/lib/api';
-import AppHeader from '@/components/layout/AppHeader';
+import SiteThemeProvider, { useSiteTheme } from '@/components/site/SiteThemeProvider';
+import AppShell from '@/components/site/AppShell';
+import { SITE_ACCENT } from '@/lib/siteTheme';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
@@ -28,6 +30,18 @@ interface DimensionResult {
   issues: Issue[];
 }
 
+interface TopIssue {
+  code: string;
+  dimension: 'seo' | 'aeo' | 'geo' | 'authority' | 'aiCompatibility';
+  severity: 'high' | 'medium' | 'low';
+  effort: 'easy' | 'medium' | 'hard';
+  message: string;
+  recommendation?: string;
+  pagesAffected: number;
+  samplePages: string[];
+  priorityScore: number;
+}
+
 interface BotAccessResult {
   bot: string;
   engine: string;
@@ -45,14 +59,26 @@ interface AiCompatibilityResult extends DimensionResult {
   };
 }
 
+interface AuthorityResult extends DimensionResult {
+  meta?: { generatedOrgSchema?: string };
+}
+
+interface PageFix {
+  url: string;
+  articleSchema?: string;
+  metaTags?: string;
+}
+
 interface AnalyzerReport {
   finalScore: number;
   coverage: { discovered: number; analyzed: number; failed: number };
+  topIssues: TopIssue[];
+  pageFixes?: PageFix[];
   breakdown: {
     seo: DimensionResult;
     aeo: DimensionResult;
     geo: DimensionResult;
-    authority: DimensionResult;
+    authority: AuthorityResult;
     aiCompatibility: AiCompatibilityResult;
   };
 }
@@ -68,26 +94,31 @@ interface ReportData {
   report: AnalyzerReport;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Severity / score colors (fixed hex, matching the rest of the redesign) ────
+
+const SEVERITY_COLOR: Record<Issue['severity'], string> = { high: '#E0533C', medium: '#D99E32', low: '#3CD070' };
+const EFFORT_COLOR: Record<TopIssue['effort'], string> = { easy: '#3CD070', medium: '#D99E32', hard: '#E0533C' };
+const EFFORT_LABEL: Record<TopIssue['effort'], string> = { easy: 'Quick fix', medium: 'Moderate fix', hard: 'Heavier fix' };
 
 function scoreColor(score: number) {
-  if (score >= 80) return { ring: '#10b981', label: 'Good', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100' };
-  if (score >= 50) return { ring: '#f59e0b', label: 'Needs Work', bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-100' };
-  return { ring: '#ef4444', label: 'Poor', bg: 'bg-red-50', text: 'text-red-600', border: 'border-red-100' };
+  if (score >= 80) return { ring: '#3CD070', label: 'Good' };
+  if (score >= 50) return { ring: '#D99E32', label: 'Needs Work' };
+  return { ring: '#E0533C', label: 'Poor' };
 }
 
 // ─── Score Gauge ──────────────────────────────────────────────────────────────
 
 function ScoreGauge({ score, label, size = 90 }: { score: number; label: string; size?: number }) {
+  const { theme } = useSiteTheme();
   const { ring } = scoreColor(score);
   const r = (size - 14) / 2;
   const circ = 2 * Math.PI * r;
   const dash = (score / 100) * circ;
 
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
       <svg width={size} height={size}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#f1f5f9" strokeWidth={9} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={theme.border} strokeWidth={9} />
         <circle
           cx={size / 2} cy={size / 2} r={r}
           fill="none" stroke={ring} strokeWidth={9}
@@ -95,86 +126,232 @@ function ScoreGauge({ score, label, size = 90 }: { score: number; label: string;
           strokeLinecap="round"
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
-        <text
-          x="50%" y="52%"
-          textAnchor="middle" dominantBaseline="middle"
-          fill={ring} fontSize={size * 0.21} fontWeight={700} fontFamily="inherit"
-        >
+        <text x="50%" y="52%" textAnchor="middle" dominantBaseline="middle" fill={ring} fontSize={size * 0.21} fontWeight={700} fontFamily="inherit">
           {score}
         </text>
       </svg>
-      <span className="text-xs font-semibold text-slate-600">{label}</span>
+      <span style={{ fontSize: 12, fontWeight: 600, color: theme.textSecondary }}>{label}</span>
     </div>
   );
 }
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 
-function StatCard({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color?: string }) {
+function StatCard({ label, value, sub, color, delta }: { label: string; value: string | number; sub?: string; color?: string; delta?: number }) {
+  const { theme } = useSiteTheme();
   return (
-    <div className="card p-5 text-center">
-      <div className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">{label}</div>
-      <div className="text-3xl font-bold mb-1" style={color ? { color } : undefined}>{value}</div>
-      {sub && <div className="text-xs text-slate-400">{sub}</div>}
+    <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 20, textAlign: 'center' }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>{label}</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 4 }}>
+        <span style={{ fontSize: 28, fontWeight: 700, color: color ?? theme.textPrimary }}>{value}</span>
+        {delta !== undefined && delta !== 0 && (
+          <span style={{ fontSize: 12.5, fontWeight: 600, color: delta > 0 ? '#3CD070' : '#E0533C' }}>
+            {delta > 0 ? '▲' : '▼'} {delta > 0 ? '+' : ''}{delta}
+          </span>
+        )}
+      </div>
+      {sub && <div style={{ fontSize: 11, color: theme.textSecondary }}>{sub}</div>}
     </div>
   );
 }
 
-// ─── Severity Badge ───────────────────────────────────────────────────────────
+/** Hand-rolled inline SVG sparkline — no chart library in this repo, matches ScoreGauge's approach. */
+function ScoreSparkline({ scores }: { scores: number[] }) {
+  const { theme } = useSiteTheme();
+  if (scores.length < 2) return null;
+
+  const width = 200;
+  const height = 40;
+  const pad = 4;
+  const points = scores.map((score, i) => {
+    const x = pad + (i / (scores.length - 1)) * (width - pad * 2);
+    const y = height - pad - (Math.max(0, Math.min(100, score)) / 100) * (height - pad * 2);
+    return `${x},${y}`;
+  });
+  const lastUp = scores[scores.length - 1] >= scores[0];
+
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ display: 'block' }}>
+      <polyline
+        points={points.join(' ')}
+        fill="none"
+        stroke={lastUp ? '#3CD070' : '#E0533C'}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {points.map((p, i) => {
+        const [x, y] = p.split(',');
+        return <circle key={i} cx={x} cy={y} r={i === points.length - 1 ? 3 : 2} fill={theme.card} stroke={lastUp ? '#3CD070' : '#E0533C'} strokeWidth={1.5} />;
+      })}
+    </svg>
+  );
+}
+
+// ─── Badges ───────────────────────────────────────────────────────────────────
 
 function SeverityBadge({ severity }: { severity: Issue['severity'] }) {
-  const map = {
-    high: 'bg-red-50 text-red-600',
-    medium: 'bg-amber-50 text-amber-700',
-    low: 'bg-emerald-50 text-emerald-700',
-  };
-  return <span className={`badge ${map[severity]} capitalize`}>{severity}</span>;
+  const c = SEVERITY_COLOR[severity];
+  return (
+    <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: `${c}22`, color: c, textTransform: 'capitalize' }}>
+      {severity}
+    </span>
+  );
+}
+
+function EffortBadge({ effort }: { effort: TopIssue['effort'] }) {
+  const c = EFFORT_COLOR[effort];
+  return (
+    <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: `${c}22`, color: c }}>
+      {EFFORT_LABEL[effort]}
+    </span>
+  );
+}
+
+// ─── Top Priority Fixes ───────────────────────────────────────────────────────
+
+const dimensionLabel: Record<TopIssue['dimension'], string> = {
+  seo: 'SEO', aeo: 'AEO', geo: 'GEO', authority: 'Authority', aiCompatibility: 'AI Compat.',
+};
+
+function PriorityFixCard({ rank, issue }: { rank: number; issue: TopIssue }) {
+  const { theme } = useSiteTheme();
+  const [open, setOpen] = useState(false);
+  const ring = SEVERITY_COLOR[issue.severity];
+
+  return (
+    <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+        <div style={{ width: 26, height: 26, borderRadius: '50%', background: ring, color: '#fff', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          {rank}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: theme.textSecondary, background: theme.bg, padding: '2px 8px', borderRadius: 20 }}>{dimensionLabel[issue.dimension]}</span>
+            <SeverityBadge severity={issue.severity} />
+            <EffortBadge effort={issue.effort} />
+          </div>
+          <div style={{ fontWeight: 600, fontSize: 14 }}>{issue.message}</div>
+          {issue.recommendation && <p style={{ color: theme.textSecondary, fontSize: 13.5, margin: '4px 0 0' }}>{issue.recommendation}</p>}
+          <div style={{ marginTop: 8 }}>
+            {issue.samplePages.length > 0 ? (
+              <button
+                onClick={() => setOpen(o => !o)}
+                className="transition-colors hover:!text-[#5ddb8c]"
+                style={{ fontSize: 12, fontWeight: 600, color: SITE_ACCENT, display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+              >
+                Affects {issue.pagesAffected} page{issue.pagesAffected !== 1 ? 's' : ''}
+                {open ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+            ) : (
+              <span style={{ fontSize: 12, color: theme.textSecondary }}>Site-wide check</span>
+            )}
+            {open && (
+              <ul style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4, padding: 0, listStyle: 'none' }}>
+                {issue.samplePages.map((p, i) => (
+                  <li key={i}>
+                    <a href={p} target="_blank" rel="noopener noreferrer" className="transition-colors hover:!text-[#3CD070]" style={{ fontSize: 12, color: theme.textSecondary, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {p}
+                    </a>
+                  </li>
+                ))}
+                {issue.pagesAffected > issue.samplePages.length && (
+                  <li style={{ fontSize: 12, color: theme.textSecondary }}>+ {issue.pagesAffected - issue.samplePages.length} more page{issue.pagesAffected - issue.samplePages.length !== 1 ? 's' : ''}</li>
+                )}
+              </ul>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TopIssuesSection({ topIssues }: { topIssues: TopIssue[] }) {
+  const { theme } = useSiteTheme();
+  if (topIssues.length === 0) {
+    return (
+      <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 24, display: 'flex', alignItems: 'center', gap: 8, color: '#3CD070', fontSize: 14, fontWeight: 500 }}>
+        <CheckCircle2 className="w-4 h-4" /> No issues found — this site is in great shape.
+      </div>
+    );
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <p style={{ fontSize: 12, color: theme.textSecondary, margin: '-4px 0 0' }}>
+        Ranked by impact (severity × pages affected) × ease of fix — start at #1.
+      </p>
+      {topIssues.map((issue, i) => (
+        <PriorityFixCard key={issue.code} rank={i + 1} issue={issue} />
+      ))}
+    </div>
+  );
+}
+
+// ─── AI Citation Tracking (preview — not real data, see report/[id] plan notes) ─
+
+function CitationPreview() {
+  const { theme } = useSiteTheme();
+  const bars = Array.from({ length: 12 }, (_, i) => i < 3);
+  return (
+    <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+        <div style={{ fontSize: 16, fontWeight: 700 }}>Authority — AI citation tracking</div>
+        <span style={{ fontSize: 10.5, fontWeight: 700, color: '#D99E32', background: '#D99E3226', padding: '2px 8px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '.04em' }}>
+          Preview
+        </span>
+      </div>
+      <p style={{ fontSize: 13.5, color: theme.textSecondary, lineHeight: 1.6, margin: '0 0 16px' }}>
+        Upcoming feature — how often models cite this site as a source across tracked prompts. Illustrative example below; not yet measuring live data for this scan. The real Authority checks (trust pages, HTTPS, social links, Organization schema) are still scored in Detailed Analysis below.
+      </p>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        {bars.map((cited, i) => (
+          <div key={i} style={{ width: 16, height: 32, borderRadius: 3, background: cited ? '#3CD070' : theme.border }} />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 // ─── Issue Table ──────────────────────────────────────────────────────────────
 
 function IssueGroup({ severity, issues }: { severity: Issue['severity']; issues: Issue[] }) {
+  const { theme } = useSiteTheme();
   const [open, setOpen] = useState(severity === 'high');
   if (issues.length === 0) return null;
-
-  const colors = {
-    high: { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500', count: 'bg-red-500' },
-    medium: { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-400', count: 'bg-amber-500' },
-    low: { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500', count: 'bg-emerald-500' },
-  };
-  const c = colors[severity];
+  const c = SEVERITY_COLOR[severity];
 
   return (
-    <div className="rounded-xl border border-slate-100 overflow-hidden mb-2">
+    <div style={{ borderRadius: 8, border: `1px solid ${theme.border}`, overflow: 'hidden', marginBottom: 8 }}>
       <button
         onClick={() => setOpen(o => !o)}
-        className={`w-full flex items-center gap-3 px-4 py-3 ${c.bg} text-left`}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: `${c}14`, textAlign: 'left', border: 'none', cursor: 'pointer' }}
       >
-        <span className={`w-2 h-2 rounded-full ${c.dot} flex-shrink-0`} />
-        <span className={`text-sm font-semibold ${c.text} capitalize flex-1`}>{severity} severity</span>
-        <span className={`text-white text-xs font-bold px-2 py-0.5 rounded-full ${c.count}`}>{issues.length}</span>
-        {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+        <span style={{ width: 8, height: 8, borderRadius: '50%', background: c, flexShrink: 0 }} />
+        <span style={{ fontSize: 13, fontWeight: 600, color: c, textTransform: 'capitalize', flex: 1 }}>{severity} severity</span>
+        <span style={{ color: '#fff', fontSize: 11, fontWeight: 700, padding: '1px 8px', borderRadius: 20, background: c }}>{issues.length}</span>
+        {open ? <ChevronUp className="w-4 h-4" style={{ color: theme.textSecondary }} /> : <ChevronDown className="w-4 h-4" style={{ color: theme.textSecondary }} />}
       </button>
       {open && (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border-collapse">
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', fontSize: 13, borderCollapse: 'collapse' }}>
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-100">
-                <th className="px-4 py-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide whitespace-nowrap w-24">Severity</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Issue</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide">Recommendation</th>
-                <th className="px-4 py-2 text-left text-xs font-semibold text-slate-400 uppercase tracking-wide w-40">Page</th>
+              <tr style={{ background: theme.bg, borderBottom: `1px solid ${theme.border}` }}>
+                <th style={{ padding: '8px 14px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: theme.textSecondary, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Severity</th>
+                <th style={{ padding: '8px 14px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: theme.textSecondary, textTransform: 'uppercase' }}>Issue</th>
+                <th style={{ padding: '8px 14px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: theme.textSecondary, textTransform: 'uppercase' }}>Recommendation</th>
+                <th style={{ padding: '8px 14px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: theme.textSecondary, textTransform: 'uppercase' }}>Page</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody>
               {issues.map((issue, i) => (
-                <tr key={i} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-3 whitespace-nowrap"><SeverityBadge severity={issue.severity} /></td>
-                  <td className="px-4 py-3 text-navy-900 font-medium text-sm">{issue.message}</td>
-                  <td className="px-4 py-3 text-slate-500 text-sm">{issue.recommendation ?? '—'}</td>
-                  <td className="px-4 py-3 text-xs text-slate-400 max-w-[160px]">
+                <tr key={i} style={{ borderBottom: `1px solid ${theme.border}` }}>
+                  <td style={{ padding: '10px 14px', whiteSpace: 'nowrap' }}><SeverityBadge severity={issue.severity} /></td>
+                  <td style={{ padding: '10px 14px', fontWeight: 500 }}>{issue.message}</td>
+                  <td style={{ padding: '10px 14px', color: theme.textSecondary }}>{issue.recommendation ?? '—'}</td>
+                  <td style={{ padding: '10px 14px', fontSize: 12, color: theme.textSecondary, maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {issue.page
-                      ? <a href={issue.page} target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline truncate block">{issue.page}</a>
+                      ? <a href={issue.page} target="_blank" rel="noopener noreferrer" className="transition-colors hover:!text-[#3CD070]" style={{ color: theme.textSecondary, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis' }}>{issue.page}</a>
                       : '—'}
                   </td>
                 </tr>
@@ -190,16 +367,14 @@ function IssueGroup({ severity, issues }: { severity: Issue['severity']; issues:
 function IssuePanel({ issues }: { issues: Issue[] }) {
   if (issues.length === 0) {
     return (
-      <div className="flex items-center gap-2 py-4 text-emerald-600 text-sm font-medium">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '16px 0', color: '#3CD070', fontSize: 13, fontWeight: 500 }}>
         <CheckCircle2 className="w-4 h-4" /> No issues found on this dimension
       </div>
     );
   }
-
   const high = issues.filter(i => i.severity === 'high');
   const medium = issues.filter(i => i.severity === 'medium');
   const low = issues.filter(i => i.severity === 'low');
-
   return (
     <div>
       <IssueGroup severity="high" issues={high} />
@@ -211,7 +386,7 @@ function IssuePanel({ issues }: { issues: Issue[] }) {
 
 // ─── Dimension Card ───────────────────────────────────────────────────────────
 
-const dimensionMeta: Record<string, { label: string; Icon: React.ComponentType<{ className?: string }> }> = {
+const dimensionMeta: Record<string, { label: string; Icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }> }> = {
   seo: { label: 'SEO — Search Engine Optimisation', Icon: Search },
   aeo: { label: 'AEO — Answer Engine Optimisation', Icon: BookOpen },
   geo: { label: 'GEO — Generative Engine Optimisation', Icon: Cpu },
@@ -220,41 +395,42 @@ const dimensionMeta: Record<string, { label: string; Icon: React.ComponentType<{
 };
 
 function DimensionCard({ name, data }: { name: string; data: DimensionResult }) {
+  const { theme } = useSiteTheme();
   const meta = dimensionMeta[name] ?? { label: name, Icon: Globe };
-  const { ring, bg, text } = scoreColor(data.score);
+  const { ring } = scoreColor(data.score);
   const highCount = data.issues.filter(i => i.severity === 'high').length;
   const medCount = data.issues.filter(i => i.severity === 'medium').length;
   const lowCount = data.issues.filter(i => i.severity === 'low').length;
   const [open, setOpen] = useState(highCount > 0);
 
   return (
-    <div className="card overflow-hidden">
+    <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, overflow: 'hidden' }}>
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors text-left"
+        className="transition-colors hover:![background:#ffffff08]"
+        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
       >
-        <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center flex-shrink-0">
-          <meta.Icon className="w-4 h-4 text-slate-500" />
+        <div style={{ width: 34, height: 34, borderRadius: 8, background: theme.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <meta.Icon className="w-4 h-4" style={{ color: theme.textSecondary }} />
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="font-semibold text-navy-900 text-sm">{meta.label}</div>
-          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-            <span className="text-xs text-slate-400">{data.totalChecks} checks</span>
-            {highCount > 0 && <span className="text-xs font-semibold text-red-500">{highCount} high</span>}
-            {medCount > 0 && <span className="text-xs font-semibold text-amber-500">{medCount} medium</span>}
-            {lowCount > 0 && <span className="text-xs font-semibold text-emerald-600">{lowCount} low</span>}
-            {data.issues.length === 0 && <span className="text-xs font-semibold text-emerald-600">All clear</span>}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 600, fontSize: 13.5 }}>{meta.label}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 11, color: theme.textSecondary }}>{data.totalChecks} checks</span>
+            {highCount > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: SEVERITY_COLOR.high }}>{highCount} high</span>}
+            {medCount > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: SEVERITY_COLOR.medium }}>{medCount} medium</span>}
+            {lowCount > 0 && <span style={{ fontSize: 11, fontWeight: 600, color: '#3CD070' }}>{lowCount} low</span>}
+            {data.issues.length === 0 && <span style={{ fontSize: 11, fontWeight: 600, color: '#3CD070' }}>All clear</span>}
           </div>
         </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-xl font-bold" style={{ color: ring }}>{data.score}</span>
-          <span className={`badge ${bg} ${text} hidden sm:inline-flex`}>/100</span>
-          {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+          <span style={{ fontSize: 18, fontWeight: 700, color: ring }}>{data.score}</span>
+          {open ? <ChevronUp className="w-4 h-4" style={{ color: theme.textSecondary }} /> : <ChevronDown className="w-4 h-4" style={{ color: theme.textSecondary }} />}
         </div>
       </button>
       {open && (
-        <div className="border-t border-slate-100 px-5 pt-3 pb-5">
-          <div className="text-xs text-slate-400 mb-3">{data.issues.length} issue{data.issues.length !== 1 ? 's' : ''} found</div>
+        <div style={{ borderTop: `1px solid ${theme.border}`, padding: '10px 18px 18px' }}>
+          <div style={{ fontSize: 11, color: theme.textSecondary, marginBottom: 10 }}>{data.issues.length} issue{data.issues.length !== 1 ? 's' : ''} found</div>
           <IssuePanel issues={data.issues} />
         </div>
       )}
@@ -265,13 +441,10 @@ function DimensionCard({ name, data }: { name: string; data: DimensionResult }) 
 // ─── Bot Grid ─────────────────────────────────────────────────────────────────
 
 function BotGrid({ botAccess }: { botAccess: BotAccessResult[] }) {
+  const { theme } = useSiteTheme();
   if (!botAccess?.length) return null;
 
-  const statusStyle = {
-    allowed: 'bg-emerald-50 text-emerald-700 border border-emerald-100',
-    blocked: 'bg-red-50 text-red-600 border border-red-100',
-    unspecified: 'bg-slate-50 text-slate-500 border border-slate-100',
-  };
+  const statusColor = { allowed: '#3CD070', blocked: '#E0533C', unspecified: theme.textSecondary };
   const StatusIcon = ({ status }: { status: BotAccessResult['status'] }) => {
     if (status === 'allowed') return <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />;
     if (status === 'blocked') return <XCircle className="w-3.5 h-3.5 flex-shrink-0" />;
@@ -279,16 +452,19 @@ function BotGrid({ botAccess }: { botAccess: BotAccessResult[] }) {
   };
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-      {botAccess.map((b, i) => (
-        <div key={i} className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-medium ${statusStyle[b.status]}`}>
-          <StatusIcon status={b.status} />
-          <div className="min-w-0">
-            <div className="font-semibold truncate">{b.engine}</div>
-            <div className="opacity-70 truncate">{b.bot} · {b.status}</div>
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4" style={{ gap: 8 }}>
+      {botAccess.map((b, i) => {
+        const c = statusColor[b.status];
+        return (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, fontSize: 12, fontWeight: 500, background: `${c}14`, border: `1px solid ${c}33`, color: c }}>
+            <StatusIcon status={b.status} />
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.engine}</div>
+              <div style={{ opacity: 0.8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.bot} · {b.status}</div>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -296,13 +472,12 @@ function BotGrid({ botAccess }: { botAccess: BotAccessResult[] }) {
 // ─── AI File Status ───────────────────────────────────────────────────────────
 
 function FileStatusRow({ has, name }: { has: boolean; name: string }) {
+  const { theme } = useSiteTheme();
   return (
-    <div className="flex items-center gap-3 py-2.5 border-b border-slate-50 last:border-0">
-      {has
-        ? <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-        : <XCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
-      <code className="text-sm text-slate-700 flex-1">{name}</code>
-      <span className={`badge ${has ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-600'}`}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: `1px solid ${theme.border}` }}>
+      {has ? <CheckCircle2 className="w-4 h-4 flex-shrink-0" style={{ color: '#3CD070' }} /> : <XCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#E0533C' }} />}
+      <code style={{ fontSize: 13.5, flex: 1 }}>{name}</code>
+      <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, color: has ? '#3CD070' : '#E0533C', background: has ? '#3CD07022' : '#E0533C22' }}>
         {has ? 'Found' : 'Missing'}
       </span>
     </div>
@@ -311,7 +486,8 @@ function FileStatusRow({ has, name }: { has: boolean; name: string }) {
 
 // ─── Generated File ───────────────────────────────────────────────────────────
 
-function GeneratedFile({ title, content, filename }: { title: string; content: string; filename: string }) {
+function GeneratedFile({ title, content, filename, description }: { title: string; content: string; filename: string; description?: string }) {
+  const { theme } = useSiteTheme();
   const [open, setOpen] = useState(false);
 
   function download() {
@@ -323,22 +499,20 @@ function GeneratedFile({ title, content, filename }: { title: string; content: s
   }
 
   return (
-    <div className="card overflow-hidden">
+    <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, overflow: 'hidden' }}>
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center gap-3 px-5 py-4 hover:bg-slate-50 transition-colors text-left"
+        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
       >
-        <FileText className="w-4 h-4 text-brand-600 flex-shrink-0" />
-        <span className="flex-1 text-sm font-semibold text-navy-900">{title}</span>
-        {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+        <FileText className="w-4 h-4 flex-shrink-0" style={{ color: SITE_ACCENT }} />
+        <span style={{ flex: 1, fontSize: 13.5, fontWeight: 600 }}>{title}</span>
+        {open ? <ChevronUp className="w-4 h-4" style={{ color: theme.textSecondary }} /> : <ChevronDown className="w-4 h-4" style={{ color: theme.textSecondary }} />}
       </button>
       {open && (
-        <div className="border-t border-slate-100 px-5 pb-5 pt-3">
-          <p className="text-xs text-slate-500 mb-3">
-            Add this file to the root of your web server to improve AI engine discoverability.
-          </p>
-          <pre className="text-xs text-slate-200 bg-slate-800 rounded-xl p-4 overflow-x-auto max-h-72 whitespace-pre-wrap break-words leading-relaxed">{content}</pre>
-          <button onClick={download} className="btn-primary !text-xs !py-2 !px-4 mt-3">
+        <div style={{ borderTop: `1px solid ${theme.border}`, padding: '10px 18px 18px' }}>
+          <p style={{ fontSize: 11.5, color: theme.textSecondary, margin: '0 0 10px' }}>{description ?? 'Add this file to the root of your web server to improve AI engine discoverability.'}</p>
+          <pre style={{ fontSize: 11.5, color: '#e2e8f0', background: '#1e293b', borderRadius: 8, padding: 14, overflowX: 'auto', maxHeight: 280, whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{content}</pre>
+          <button onClick={download} style={{ marginTop: 10, background: '#2A4736', color: '#F9F9F8', border: 'none', padding: '8px 16px', borderRadius: 6, fontWeight: 600, fontSize: 12, cursor: 'pointer' }}>
             Download {filename}
           </button>
         </div>
@@ -350,15 +524,17 @@ function GeneratedFile({ title, content, filename }: { title: string; content: s
 // ─── Collapsible Section ──────────────────────────────────────────────────────
 
 function Section({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
+  const { theme } = useSiteTheme();
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="mb-8">
+    <div style={{ marginBottom: 32 }}>
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 w-full text-left mb-4 group"
+        className="transition-colors hover:!text-[#3CD070]"
+        style={{ display: 'flex', alignItems: 'center', gap: 8, width: '100%', textAlign: 'left', marginBottom: 14, background: 'none', border: 'none', cursor: 'pointer', color: theme.textPrimary }}
       >
-        <h2 className="text-base font-bold text-navy-900 flex-1 group-hover:text-brand-600 transition-colors">{title}</h2>
-        {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+        <h2 style={{ fontSize: 15, fontWeight: 700, flex: 1, margin: 0 }}>{title}</h2>
+        {open ? <ChevronUp className="w-4 h-4" style={{ color: theme.textSecondary }} /> : <ChevronDown className="w-4 h-4" style={{ color: theme.textSecondary }} />}
       </button>
       {open && children}
     </div>
@@ -367,14 +543,16 @@ function Section({ title, children, defaultOpen = true }: { title: string; child
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function ReportView({ id }: { id: string }) {
+function ReportBody({ id }: { id: string }) {
+  const { theme } = useSiteTheme();
   const [data, setData] = useState<ReportData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [priorScores, setPriorScores] = useState<number[]>([]);
 
   useEffect(() => {
     scanApi.getReport(id)
-      .then(res => setData(res.data))
+      .then(res => setData(res.data.data))
       .catch(err => {
         const msg = err.response?.data?.message ?? 'Failed to load report.';
         setError(msg);
@@ -382,39 +560,58 @@ export default function ReportView({ id }: { id: string }) {
       .finally(() => setLoading(false));
   }, [id]);
 
+  useEffect(() => {
+    if (!data) return;
+    // Score trend: reuse the existing scan-list endpoint (already returns url/finalScore/
+    // createdAt/status for a user's scans, capped at 50) and filter client-side — no
+    // dedicated history endpoint yet, matches Phase 2's build-light scope.
+    scanApi.list()
+      .then(res => {
+        const scans: { url: string; status: string; finalScore?: number; createdAt: string }[] = res.data.data;
+        const scores = scans
+          .filter(s => s.url === data.url && s.status === 'completed' && s.finalScore !== undefined && new Date(s.createdAt) < new Date(data.createdAt))
+          .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+          .slice(-8)
+          .map(s => s.finalScore as number);
+        setPriorScores(scores);
+      })
+      .catch(() => {}); // trend is a nice-to-have — fail silently, don't block the report
+  }, [data]);
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Zap className="w-8 h-8 text-brand-600 animate-pulse" />
-      </div>
+      <AppShell>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', color: SITE_ACCENT }}>Loading…</div>
+      </AppShell>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="card p-8 max-w-sm w-full text-center">
-          <XCircle className="w-10 h-10 text-red-400 mx-auto mb-4" />
-          <h2 className="text-lg font-bold text-navy-900 mb-2">Could not load report</h2>
-          <p className="text-slate-500 text-sm mb-5">{error ?? 'Report not found.'}</p>
-          <Link href="/dashboard" className="btn-primary w-full justify-center !text-sm !py-2.5">← Back to Dashboard</Link>
+      <AppShell maxWidth={420}>
+        <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 32, textAlign: 'center' }}>
+          <XCircle className="w-10 h-10 mx-auto mb-4" style={{ color: '#E0533C' }} />
+          <h2 style={{ fontSize: 17, fontWeight: 700, margin: '0 0 8px' }}>Could not load report</h2>
+          <p style={{ color: theme.textSecondary, fontSize: 13.5, margin: '0 0 20px' }}>{error ?? 'Report not found.'}</p>
+          <Link href="/dashboard" style={{ display: 'block', textAlign: 'center', background: '#2A4736', color: '#F9F9F8', padding: '12px 24px', borderRadius: 8, fontWeight: 600, fontSize: 14 }}>
+            ← Back to Dashboard
+          </Link>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
   if (data.status !== 'completed') {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="card p-8 max-w-sm w-full text-center">
-          <Zap className="w-10 h-10 text-brand-600 animate-pulse mx-auto mb-4" />
-          <h2 className="text-lg font-bold text-navy-900 mb-2">
-            {data.status === 'failed' ? 'Scan failed' : 'Report not ready yet'}
-          </h2>
-          <p className="text-slate-500 text-sm mb-5 capitalize">Status: {data.status}</p>
-          <Link href="/dashboard" className="btn-primary w-full justify-center !text-sm !py-2.5">← Back to Dashboard</Link>
+      <AppShell maxWidth={420}>
+        <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 32, textAlign: 'center' }}>
+          <h2 style={{ fontSize: 17, fontWeight: 700, margin: '0 0 8px' }}>{data.status === 'failed' ? 'Scan failed' : 'Report not ready yet'}</h2>
+          <p style={{ color: theme.textSecondary, fontSize: 13.5, margin: '0 0 20px', textTransform: 'capitalize' }}>Status: {data.status}</p>
+          <Link href="/dashboard" style={{ display: 'block', textAlign: 'center', background: '#2A4736', color: '#F9F9F8', padding: '12px 24px', borderRadius: 8, fontWeight: 600, fontSize: 14 }}>
+            ← Back to Dashboard
+          </Link>
         </div>
-      </div>
+      </AppShell>
     );
   }
 
@@ -425,6 +622,7 @@ export default function ReportView({ id }: { id: string }) {
   const completedDate = completedAt
     ? new Date(completedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
     : '—';
+  const pagesAnalysed = coverage?.analyzed ?? creditsUsed;
 
   const totalIssues = Object.values(breakdown).reduce((n, r) => n + (r as DimensionResult).issues.length, 0);
   const blockedCount = (aiMeta?.botAccess ?? []).filter(b => b.status === 'blocked').length;
@@ -435,148 +633,174 @@ export default function ReportView({ id }: { id: string }) {
 
   const generatedLlmTxt = aiMeta?.generatedLlmTxt;
   const generatedAiPlugin = aiMeta?.generatedAiPluginJson
-    ? (typeof aiMeta.generatedAiPluginJson === 'string'
-        ? aiMeta.generatedAiPluginJson
-        : JSON.stringify(aiMeta.generatedAiPluginJson, null, 2))
+    ? (typeof aiMeta.generatedAiPluginJson === 'string' ? aiMeta.generatedAiPluginJson : JSON.stringify(aiMeta.generatedAiPluginJson, null, 2))
     : null;
+  const generatedOrgSchema = breakdown.authority?.meta?.generatedOrgSchema;
+  const pageFixes = report.pageFixes ?? [];
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <AppHeader>
-        <p className="text-sm text-slate-500 truncate hidden sm:block flex-1 min-w-0">{url}</p>
-        <a
-          href={`${API}/scans/${_id}/report/html`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-shrink-0 flex items-center gap-1 text-sm text-slate-400 hover:text-navy-900 transition-colors"
-        >
-          HTML <ExternalLink className="w-3.5 h-3.5" />
-        </a>
-        <Link href="/dashboard" className="flex-shrink-0 text-sm text-brand-600 hover:text-brand-700 font-medium">
-          ← Dashboard
-        </Link>
-      </AppHeader>
-
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-
-        {/* Page header */}
-        <div className="mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-navy-900 break-all">{url}</h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Scanned {completedDate} · {creditsUsed} page{creditsUsed !== 1 ? 's' : ''} analysed
+    <AppShell maxWidth={1080}>
+      {/* Page header */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 28 }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 4 }}>Scan report</div>
+          <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0, letterSpacing: '-0.01em', wordBreak: 'break-all' }}>{url}</h1>
+          <p style={{ fontSize: 12.5, color: theme.textSecondary, marginTop: 6 }}>
+            Scanned {completedDate} · {pagesAnalysed} page{pagesAnalysed !== 1 ? 's' : ''} analysed
           </p>
         </div>
-
-        {/* Stat cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          <StatCard
-            label="Overall Score"
-            value={finalScore}
-            sub={scoreColor(finalScore).label}
-            color={scoreColor(finalScore).ring}
-          />
-          <StatCard
-            label="Pages Scanned"
-            value={coverage?.analyzed ?? creditsUsed}
-            sub={coverage ? `${coverage.discovered} found · ${coverage.failed} failed` : undefined}
-          />
-          <StatCard
-            label="AI Bots Blocked"
-            value={blockedCount}
-            sub={totalBots ? `of ${totalBots} checked` : undefined}
-            color={blockedCount > 0 ? '#ef4444' : '#10b981'}
-          />
-          <StatCard
-            label="Total Issues"
-            value={totalIssues}
-            sub="across all checks"
-          />
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <Link href="/agency/competitors" className="transition-colors hover:!border-[#3CD070] hover:!text-[#3CD070]" style={{ border: `1px solid ${theme.border}`, color: theme.textPrimary, padding: '10px 16px', borderRadius: 8, fontWeight: 600, fontSize: 13 }}>
+            Compare competitors
+          </Link>
+          <Link href="/agency/export" style={{ background: '#2A4736', color: '#F9F9F8', padding: '10px 16px', borderRadius: 8, fontWeight: 600, fontSize: 13 }}>
+            Export PDF
+          </Link>
         </div>
+      </div>
 
-        {/* Score gauges */}
-        <Section title="Score Breakdown">
-          <div className="card p-6">
-            <div className="flex flex-wrap justify-around gap-6">
-              {dimensions.map(d => {
-                const dim = breakdown[d] as DimensionResult;
-                if (!dim) return null;
-                return <ScoreGauge key={d} score={dim.score} label={gaugeLabels[d]} />;
-              })}
-            </div>
-          </div>
-        </Section>
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4" style={{ gap: 16, marginBottom: priorScores.length >= 2 ? 12 : 32 }}>
+        <StatCard
+          label="Overall Score"
+          value={finalScore}
+          sub={scoreColor(finalScore).label}
+          color={scoreColor(finalScore).ring}
+          delta={priorScores.length > 0 ? finalScore - priorScores[priorScores.length - 1] : undefined}
+        />
+        <StatCard label="Pages Scanned" value={pagesAnalysed} sub={coverage ? `${coverage.discovered} found · ${coverage.failed} failed` : undefined} />
+        <StatCard label="AI Bots Blocked" value={blockedCount} sub={totalBots ? `of ${totalBots} checked` : undefined} color={blockedCount > 0 ? '#E0533C' : '#3CD070'} />
+        <StatCard label="Total Issues" value={totalIssues} sub="across all checks" />
+      </div>
 
-        {/* AI Engine Access Matrix */}
-        {aiMeta?.botAccess?.length > 0 && (
-          <Section title="AI Engine Access Matrix">
-            <div className="card p-5">
-              <p className="text-xs text-slate-400 mb-4">
-                Shows which AI crawlers can access your site based on your <code className="bg-slate-100 px-1 rounded">robots.txt</code> directives.
-              </p>
-              <BotGrid botAccess={aiMeta.botAccess} />
-            </div>
-          </Section>
-        )}
+      {priorScores.length >= 2 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 32, padding: '10px 16px', border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, width: 'fit-content' }}>
+          <span style={{ fontSize: 11.5, color: theme.textSecondary }}>Score trend (last {priorScores.length + 1} scans)</span>
+          <ScoreSparkline scores={[...priorScores, finalScore]} />
+        </div>
+      )}
 
-        {/* AI Compatibility Files */}
-        {aiMeta && (
-          <Section title="AI Compatibility Files">
-            <div className="card px-5 py-2">
-              <FileStatusRow has={!!aiMeta.hasLlmTxt} name="/llm.txt" />
-              {aiMeta.hasLlmsFullTxt !== undefined && (
-                <FileStatusRow has={!!aiMeta.hasLlmsFullTxt} name="/llms-full.txt" />
-              )}
-              <FileStatusRow has={!!aiMeta.hasAiPluginJson} name="/.well-known/ai-plugin.json" />
-            </div>
-          </Section>
-        )}
-
-        {/* Detailed dimension cards */}
-        <Section title="Detailed Analysis">
-          <div className="flex flex-col gap-3">
+      {/* Score gauges */}
+      <Section title="Score Breakdown">
+        <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 24 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-around', gap: 24 }}>
             {dimensions.map(d => {
               const dim = breakdown[d] as DimensionResult;
               if (!dim) return null;
-              return <DimensionCard key={d} name={d} data={dim} />;
+              return <ScoreGauge key={d} score={dim.score} label={gaugeLabels[d]} />;
             })}
           </div>
-        </Section>
-
-        {/* Generated Files */}
-        {(generatedLlmTxt || generatedAiPlugin) && (
-          <Section title="Generated Files" defaultOpen={false}>
-            <div className="flex flex-col gap-3">
-              {generatedLlmTxt && (
-                <GeneratedFile
-                  title="llms.txt — AI assistant context file"
-                  content={generatedLlmTxt}
-                  filename="llms.txt"
-                />
-              )}
-              {generatedAiPlugin && (
-                <GeneratedFile
-                  title="ai-plugin.json — OpenAI plugin manifest"
-                  content={generatedAiPlugin}
-                  filename="ai-plugin.json"
-                />
-              )}
-            </div>
-          </Section>
-        )}
-
-        {/* Footer */}
-        <div className="flex items-center justify-between text-xs text-slate-400 border-t border-slate-100 pt-6 mt-2">
-          <span>Powered by <span className="font-semibold text-navy-900">Aeorch</span></span>
-          <a
-            href={`${API}/scans/${_id}/report/html`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-navy-900 transition-colors"
-          >
-            Full HTML report <ExternalLink className="w-3 h-3" />
-          </a>
         </div>
-      </main>
-    </div>
+      </Section>
+
+      {/* Top Priority Fixes */}
+      <Section title="Top Priority Fixes">
+        <TopIssuesSection topIssues={report.topIssues ?? []} />
+      </Section>
+
+      {/* AI Citation Tracking (preview) */}
+      <Section title="AI Citation Tracking">
+        <CitationPreview />
+      </Section>
+
+      {/* AI Engine Access Matrix */}
+      {aiMeta?.botAccess?.length > 0 && (
+        <Section title="AI Engine Access Matrix">
+          <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 20 }}>
+            <p style={{ fontSize: 12, color: theme.textSecondary, margin: '0 0 14px' }}>
+              Shows which AI crawlers can access your site based on your <code style={{ background: theme.bg, padding: '1px 5px', borderRadius: 4 }}>robots.txt</code> directives.
+            </p>
+            <BotGrid botAccess={aiMeta.botAccess} />
+          </div>
+        </Section>
+      )}
+
+      {/* AI Compatibility Files */}
+      {aiMeta && (
+        <Section title="AI Compatibility Files">
+          <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: '0 20px' }}>
+            <FileStatusRow has={!!aiMeta.hasLlmTxt} name="/llm.txt" />
+            {aiMeta.hasLlmsFullTxt !== undefined && <FileStatusRow has={!!aiMeta.hasLlmsFullTxt} name="/llms-full.txt" />}
+            <FileStatusRow has={!!aiMeta.hasAiPluginJson} name="/.well-known/ai-plugin.json" />
+          </div>
+        </Section>
+      )}
+
+      {/* Detailed dimension cards */}
+      <Section title="Detailed Analysis (all checks)" defaultOpen={false}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {dimensions.map(d => {
+            const dim = breakdown[d] as DimensionResult;
+            if (!dim) return null;
+            return <DimensionCard key={d} name={d} data={dim} />;
+          })}
+        </div>
+      </Section>
+
+      {/* Generated Files */}
+      {(generatedLlmTxt || generatedAiPlugin || generatedOrgSchema) && (
+        <Section title="Generated Files" defaultOpen={false}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {generatedLlmTxt && <GeneratedFile title="llms.txt — AI assistant context file" content={generatedLlmTxt} filename="llms.txt" />}
+            {generatedAiPlugin && <GeneratedFile title="ai-plugin.json — OpenAI plugin manifest" content={generatedAiPlugin} filename="ai-plugin.json" />}
+            {generatedOrgSchema && (
+              <GeneratedFile
+                title="Organization schema (JSON-LD)"
+                content={generatedOrgSchema}
+                filename="organization-schema.json"
+                description={`Paste this inside a <script type="application/ld+json"> tag in your site's <head>.`}
+              />
+            )}
+          </div>
+        </Section>
+      )}
+
+      {/* Example Page Fixes */}
+      {pageFixes.length > 0 && (
+        <Section title="Example Page Fixes" defaultOpen={false}>
+          <p style={{ fontSize: 12, color: theme.textSecondary, margin: '0 0 12px' }}>
+            Example fixes for a few of the affected pages from the crawled sample — not every affected page, just enough to show the pattern to apply site-wide.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {pageFixes.map(fix => (
+              <div key={fix.url} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {fix.articleSchema && (
+                  <GeneratedFile
+                    title={`Article schema — ${fix.url}`}
+                    content={fix.articleSchema}
+                    filename="article-schema.json"
+                    description={`Paste this inside a <script type="application/ld+json"> tag in this page's <head>.`}
+                  />
+                )}
+                {fix.metaTags && (
+                  <GeneratedFile
+                    title={`OG / Twitter meta tags — ${fix.url}`}
+                    content={fix.metaTags}
+                    filename="meta-tags.html"
+                    description="Paste these tags into this page's <head>."
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {/* Footer */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, color: theme.textSecondary, borderTop: `1px solid ${theme.border}`, paddingTop: 20, marginTop: 8 }}>
+        <span>Powered by <span style={{ fontWeight: 600, color: theme.textPrimary }}>Aeorch</span></span>
+        <a href={`${API}/scans/${_id}/report/html`} target="_blank" rel="noopener noreferrer" className="transition-colors hover:!text-[#3CD070]" style={{ display: 'flex', alignItems: 'center', gap: 4, color: theme.textSecondary }}>
+          Full HTML report <ExternalLink className="w-3 h-3" />
+        </a>
+      </div>
+    </AppShell>
+  );
+}
+
+export default function ReportView({ id }: { id: string }) {
+  return (
+    <SiteThemeProvider>
+      <ReportBody id={id} />
+    </SiteThemeProvider>
   );
 }

@@ -75,6 +75,12 @@ async function main() {
       page.waitForFunction(() => location.pathname === '/dashboard', { timeout: 20000 }),
       page.click('button[type="submit"]'),
     ]);
+    // The dashboard renders a loading state while authApi.me()/scanApi.list() resolve —
+    // wait for that to clear before any subsequent step reads body.innerText.
+    await page.waitForFunction(
+      () => document.body.innerText.includes('Welcome back') || !document.body.innerText.includes('Loading'),
+      { timeout: 20000 },
+    );
   }
 
   const firstEmail = `e2e.${stamp}.0@example.com`;
