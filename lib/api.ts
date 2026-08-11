@@ -129,6 +129,15 @@ export const organizationApi = {
 
   removeMember: (orgId: string, userId: string) =>
     api.delete(`/organizations/${orgId}/members/${userId}`),
+
+  addCompetitor: (orgId: string, siteId: string, url: string, label?: string) =>
+    api.post(`/organizations/${orgId}/sites/${siteId}/competitors`, { url, label }),
+
+  removeCompetitor: (orgId: string, siteId: string, competitorId: string) =>
+    api.delete(`/organizations/${orgId}/sites/${siteId}/competitors/${competitorId}`),
+
+  compareSite: (orgId: string, siteId: string) =>
+    api.get(`/organizations/${orgId}/sites/${siteId}/compare`),
 };
 
 // ─── Contact ──────────────────────────────────────────────────────────────────
