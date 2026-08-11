@@ -104,6 +104,33 @@ export const adminApi = {
     api.delete(`/admin/contacts/${id}`),
 };
 
+// ─── Organizations ────────────────────────────────────────────────────────────
+
+export const organizationApi = {
+  getMine: () => api.get('/organizations/me'),
+
+  create: (name: string, url: string) =>
+    api.post('/organizations', { name, url }),
+
+  update: (id: string, data: Partial<{ name: string; url: string; whiteLabel: boolean; brandColor: string; logoUrl: string }>) =>
+    api.patch(`/organizations/${id}`, data),
+
+  addSite: (orgId: string, url: string, label?: string) =>
+    api.post(`/organizations/${orgId}/sites`, { url, label }),
+
+  removeSite: (orgId: string, siteId: string) =>
+    api.delete(`/organizations/${orgId}/sites/${siteId}`),
+
+  addMember: (orgId: string, email: string) =>
+    api.post(`/organizations/${orgId}/members`, { email }),
+
+  updateMemberRole: (orgId: string, userId: string, role: 'admin' | 'member') =>
+    api.patch(`/organizations/${orgId}/members/${userId}`, { role }),
+
+  removeMember: (orgId: string, userId: string) =>
+    api.delete(`/organizations/${orgId}/members/${userId}`),
+};
+
 // ─── Contact ──────────────────────────────────────────────────────────────────
 
 export const contactApi = {

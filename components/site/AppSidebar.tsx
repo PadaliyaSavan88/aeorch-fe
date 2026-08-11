@@ -8,11 +8,11 @@ import { SITE_ACCENT } from '@/lib/siteTheme';
 import { authApi } from '@/lib/api';
 import { clearTokens } from '@/lib/auth';
 
-export type AppNavKey = 'dashboard' | 'agency-preview' | 'competitors' | 'export' | 'settings' | 'billing';
+export type AppNavKey = 'dashboard' | 'agency' | 'competitors' | 'export' | 'settings' | 'billing';
 
 const NAV: { key: AppNavKey; href: string; label: string; badge?: string }[] = [
   { key: 'dashboard', href: '/dashboard', label: 'Dashboard' },
-  { key: 'agency-preview', href: '/agency', label: 'Multi-site', badge: 'Preview' },
+  { key: 'agency', href: '/agency', label: 'Multi-site' },
   { key: 'competitors', href: '/agency/competitors', label: 'Competitors' },
   { key: 'export', href: '/agency/export', label: 'Export' },
   { key: 'settings', href: '/agency/settings', label: 'Settings' },
