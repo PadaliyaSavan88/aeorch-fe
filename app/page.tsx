@@ -1,13 +1,8 @@
 import type { Metadata } from 'next';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import Hero from '@/components/landing/Hero';
-import Features from '@/components/landing/Features';
-import HowItWorks from '@/components/landing/HowItWorks';
-import FreemiumSection from '@/components/landing/FreemiumSection';
-import FAQ from '@/components/landing/FAQ';
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import SiteThemeProvider from '@/components/site/SiteThemeProvider';
+import MarketingHeader from '@/components/site/MarketingHeader';
+import SiteFooter from '@/components/site/SiteFooter';
+import LandingBody from '@/components/landing/LandingBody';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aeorch.com';
 
@@ -102,30 +97,13 @@ export default function HomePage() {
       <JsonLd data={howToJsonLd} />
       <JsonLd data={faqJsonLd} />
 
-      <Header />
-      <main>
-        <Hero />
-        <Features />
-        <HowItWorks />
-        <FreemiumSection />
-        <FAQ />
-
-        {/* Final CTA */}
-        <section className="py-20 bg-gradient-brand text-white text-center">
-          <div className="max-w-2xl mx-auto px-4 sm:px-6">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Ready to make your site AI-ready?
-            </h2>
-            <p className="text-slate-300 text-lg mb-8">
-              Join website owners using Aeorch to audit their SEO, AEO and GEO scores — free, every month.
-            </p>
-            <Link href="/signup" className="btn-primary bg-white !text-navy-900 hover:bg-slate-100 !py-4 !px-8">
-              Start your free audit <ArrowRight className="w-5 h-5" />
-            </Link>
-          </div>
-        </section>
-      </main>
-      <Footer />
+      <SiteThemeProvider>
+        <MarketingHeader showCta />
+        <main>
+          <LandingBody />
+        </main>
+        <SiteFooter links={[{ href: '/free-tool', label: 'Free Tool' }, { href: '/pricing', label: 'Pricing' }]} />
+      </SiteThemeProvider>
     </>
   );
 }

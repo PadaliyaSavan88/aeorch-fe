@@ -79,7 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
       </head>
-      <body className="bg-white min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col">
         {children}
       </body>
       {gaId && <GoogleAnalytics gaId={gaId} />}

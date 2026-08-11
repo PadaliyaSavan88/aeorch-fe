@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { Fragment, useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Users, BarChart2, Mail, Zap, Trash2, ChevronLeft, ChevronRight,
-  Search, CreditCard, LogOut, RefreshCw, Shield,
+  Search, CreditCard, LogOut, RefreshCw, Shield, DollarSign, ScrollText,
 } from 'lucide-react';
 import { authApi, adminApi } from '@/lib/api';
 import { clearTokens, isLoggedIn } from '@/lib/auth';
-import AppHeader from '@/components/layout/AppHeader';
+import SiteThemeProvider, { useSiteTheme } from '@/components/site/SiteThemeProvider';
+import { SITE_ACCENT } from '@/lib/siteTheme';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -53,11 +54,12 @@ interface Contact {
   createdAt: string;
 }
 
-type Tab = 'overview' | 'users' | 'scans' | 'contacts';
+type Tab = 'overview' | 'users' | 'scans' | 'contacts' | 'revenue' | 'logs';
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 
-export default function AdminPage() {
+function AdminBody() {
+  const { theme } = useSiteTheme();
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('overview');
   const [currentUser, setCurrentUser] = useState<{ email: string; isAdmin: boolean } | null>(null);
@@ -67,8 +69,9 @@ export default function AdminPage() {
     if (!isLoggedIn()) { router.replace('/login'); return; }
     authApi.me()
       .then(res => {
-        if (!res.data.isAdmin) { router.replace('/dashboard'); return; }
-        setCurrentUser(res.data);
+        const user = res.data.data;
+        if (!user.isAdmin) { router.replace('/dashboard'); return; }
+        setCurrentUser(user);
         setLoading(false);
       })
       .catch(() => { clearTokens(); router.replace('/login'); });
@@ -84,57 +87,53 @@ export default function AdminPage() {
   }
 
   if (loading) {
-    return (
-      <>
-        <AppHeader />
-        <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-slate-50">
-          <div className="w-8 h-8 rounded-full border-4 border-brand-200 border-t-brand-600 animate-spin" />
-        </div>
-      </>
-    );
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: SITE_ACCENT, background: theme.bg }}>Loading…</div>;
   }
 
-  const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
-    { id: 'overview', label: 'Overview',  icon: BarChart2 },
-    { id: 'users',    label: 'Users',     icon: Users },
-    { id: 'scans',    label: 'Scans',     icon: Zap },
-    { id: 'contacts', label: 'Contacts',  icon: Mail },
+  const tabs: { id: Tab; label: string; icon: React.ElementType; real: boolean }[] = [
+    { id: 'overview', label: 'Overview', icon: BarChart2, real: true },
+    { id: 'users', label: 'Users', icon: Users, real: true },
+    { id: 'scans', label: 'Scans', icon: Zap, real: true },
+    { id: 'contacts', label: 'Contacts', icon: Mail, real: true },
+    { id: 'revenue', label: 'Revenue', icon: DollarSign, real: false },
+    { id: 'logs', label: 'Logs', icon: ScrollText, real: false },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <AppHeader>
-        <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-brand-600" />
-          <span className="text-sm font-medium text-navy-900">Admin</span>
+    <div style={{ minHeight: '100vh', background: theme.bg }}>
+      <header style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 24px', borderBottom: `1px solid ${theme.border}`, position: 'sticky', top: 0, background: theme.bg, zIndex: 10, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Shield className="w-4 h-4" style={{ color: SITE_ACCENT }} />
+          <span style={{ fontSize: 14, fontWeight: 600 }}>Admin</span>
         </div>
-        <span className="text-sm text-slate-400 hidden sm:block">|</span>
-        <span className="text-sm text-slate-600 hidden sm:block truncate">{currentUser?.email}</span>
-        <Link href="/dashboard" className="text-sm text-slate-500 hover:text-navy-900 transition-colors">Dashboard</Link>
-        <button onClick={handleLogout} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-navy-900 transition-colors">
-          <LogOut className="w-4 h-4" /> Sign out
-        </button>
-      </AppHeader>
+        <span style={{ color: theme.textSecondary, fontSize: 13 }} className="hidden sm:inline">|</span>
+        <span className="hidden sm:inline" style={{ fontSize: 13, color: theme.textSecondary }}>{currentUser?.email}</span>
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 16 }}>
+          <Link href="/dashboard" className="transition-colors hover:!text-[#3CD070]" style={{ fontSize: 13, color: theme.textSecondary }}>Dashboard</Link>
+          <button onClick={handleLogout} className="transition-colors hover:!text-[#3CD070]" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: theme.textSecondary, background: 'none', border: 'none', cursor: 'pointer' }}>
+            <LogOut className="w-4 h-4" /> Sign out
+          </button>
+        </div>
+      </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-navy-900">Admin Panel</h1>
-          <p className="text-slate-500 text-sm mt-1">Manage users, scans, and contact submissions.</p>
+      <main style={{ maxWidth: 1160, margin: '0 auto', padding: '32px 24px' }}>
+        <div style={{ marginBottom: 24 }}>
+          <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0 }}>Admin Panel</h1>
+          <p style={{ fontSize: 13.5, color: theme.textSecondary, marginTop: 4 }}>Manage users, scans, and contact submissions.</p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 bg-white border border-slate-100 rounded-xl p-1 mb-8 w-fit shadow-sm">
+        <div style={{ display: 'flex', gap: 4, background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 10, padding: 4, marginBottom: 28, width: 'fit-content', flexWrap: 'wrap' }}>
           {tabs.map(t => {
             const Icon = t.icon;
+            const active = tab === t.id;
             return (
               <button
                 key={t.id}
                 onClick={() => setTab(t.id)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  tab === t.id
-                    ? 'bg-brand-600 text-white shadow-sm'
-                    : 'text-slate-500 hover:text-navy-900 hover:bg-slate-50'
-                }`}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
+                  border: 'none', cursor: 'pointer', background: active ? '#2A4736' : 'none', color: active ? '#F9F9F8' : theme.textSecondary,
+                }}
               >
                 <Icon className="w-4 h-4" />
                 {t.label}
@@ -144,45 +143,56 @@ export default function AdminPage() {
         </div>
 
         {tab === 'overview' && <OverviewTab />}
-        {tab === 'users'    && <UsersTab />}
-        {tab === 'scans'    && <ScansTab />}
+        {tab === 'users' && <UsersTab />}
+        {tab === 'scans' && <ScansTab />}
         {tab === 'contacts' && <ContactsTab />}
+        {tab === 'revenue' && <RevenueTab />}
+        {tab === 'logs' && <LogsTab />}
       </main>
     </div>
   );
 }
 
-// ─── Overview Tab ─────────────────────────────────────────────────────────────
+export default function AdminPage() {
+  return (
+    <SiteThemeProvider>
+      <AdminBody />
+    </SiteThemeProvider>
+  );
+}
+
+// ─── Overview Tab (real) ──────────────────────────────────────────────────────
 
 function OverviewTab() {
+  const { theme } = useSiteTheme();
   const [stats, setStats] = useState<Stats | null>(null);
 
   useEffect(() => {
-    adminApi.stats().then(r => setStats(r.data));
+    adminApi.stats().then(r => setStats(r.data.data));
   }, []);
 
   if (!stats) return <Spinner />;
 
   const cards = [
-    { label: 'Total users',      value: stats.totalUsers,       icon: Users,      color: 'bg-brand-50 text-brand-600' },
-    { label: 'Total scans',      value: stats.totalScans,       icon: Zap,        color: 'bg-violet-50 text-violet-600' },
-    { label: 'Completed scans',  value: stats.completedScans,   icon: BarChart2,  color: 'bg-emerald-50 text-emerald-600' },
-    { label: 'Referrals',        value: stats.referralCount,    icon: RefreshCw,  color: 'bg-amber-50 text-amber-600' },
-    { label: 'Credits used',     value: stats.totalCreditsUsed, icon: CreditCard, color: 'bg-cyan-50 text-cyan-600' },
-    { label: 'Contact messages', value: stats.totalContacts,    icon: Mail,       color: 'bg-rose-50 text-rose-600' },
+    { label: 'Total users', value: stats.totalUsers, icon: Users, color: SITE_ACCENT },
+    { label: 'Total scans', value: stats.totalScans, icon: Zap, color: '#B57FE0' },
+    { label: 'Completed scans', value: stats.completedScans, icon: BarChart2, color: '#3CD070' },
+    { label: 'Referrals', value: stats.referralCount, icon: RefreshCw, color: '#D99E32' },
+    { label: 'Credits used', value: stats.totalCreditsUsed, icon: CreditCard, color: '#7FB2FF' },
+    { label: 'Contact messages', value: stats.totalContacts, icon: Mail, color: '#E0533C' },
   ];
 
   return (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: 16 }}>
       {cards.map(c => {
         const Icon = c.icon;
         return (
-          <div key={c.label} className="card p-6">
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${c.color}`}>
-              <Icon className="w-5 h-5" />
+          <div key={c.label} style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 22 }}>
+            <div style={{ width: 38, height: 38, borderRadius: 8, background: `${c.color}22`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+              <Icon className="w-5 h-5" style={{ color: c.color }} />
             </div>
-            <div className="text-3xl font-bold text-navy-900">{c.value.toLocaleString()}</div>
-            <div className="text-sm text-slate-500 mt-1">{c.label}</div>
+            <div style={{ fontSize: 26, fontWeight: 700 }}>{c.value.toLocaleString()}</div>
+            <div style={{ fontSize: 13, color: theme.textSecondary, marginTop: 4 }}>{c.label}</div>
           </div>
         );
       })}
@@ -190,21 +200,22 @@ function OverviewTab() {
   );
 }
 
-// ─── Users Tab ────────────────────────────────────────────────────────────────
+// ─── Users Tab (real) ─────────────────────────────────────────────────────────
 
 function UsersTab() {
-  const [data, setData]       = useState<{ users: AdminUser[]; total: number; pages: number } | null>(null);
-  const [page, setPage]       = useState(1);
-  const [search, setSearch]   = useState('');
-  const [query, setQuery]     = useState('');
+  const { theme } = useSiteTheme();
+  const [data, setData] = useState<{ users: AdminUser[]; total: number; pages: number } | null>(null);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [query, setQuery] = useState('');
   const [creditModal, setCreditModal] = useState<AdminUser | null>(null);
-  const [creditAmt, setCreditAmt]     = useState('');
+  const [creditAmt, setCreditAmt] = useState('');
   const [creditReason, setCreditReason] = useState('');
-  const [saving, setSaving]   = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const load = useCallback(() => {
     setData(null);
-    adminApi.listUsers(page, query).then(r => setData(r.data));
+    adminApi.listUsers(page, query).then(r => setData(r.data.data));
   }, [page, query]);
 
   useEffect(() => { load(); }, [load]);
@@ -233,78 +244,67 @@ function UsersTab() {
     load();
   }
 
+  const th: React.CSSProperties = { padding: '10px 14px', fontWeight: 600, fontSize: 12, color: theme.textSecondary, textAlign: 'left' };
+  const td: React.CSSProperties = { padding: '10px 14px', fontSize: 13 };
+
   return (
     <div>
-      {/* Search */}
-      <div className="flex gap-3 mb-5">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
+        <div style={{ position: 'relative', flex: 1, maxWidth: 320 }}>
+          <Search className="w-4 h-4" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: theme.textSecondary }} />
           <input
-            className="input-field !pl-9"
             placeholder="Search by name or email…"
             value={search}
             onChange={e => setSearch(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') { setPage(1); setQuery(search); } }}
+            className="focus:!border-[#3CD070] focus:!outline-none"
+            style={{ width: '100%', boxSizing: 'border-box', background: theme.card, border: `1px solid ${theme.border}`, borderRadius: 8, padding: '10px 12px 10px 36px', fontSize: 13.5, color: theme.textPrimary }}
           />
         </div>
-        <button onClick={() => { setPage(1); setQuery(search); }} className="btn-primary !py-2 !text-sm">Search</button>
+        <button onClick={() => { setPage(1); setQuery(search); }} style={{ background: '#2A4736', color: '#F9F9F8', border: 'none', padding: '10px 18px', borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: 'pointer' }}>
+          Search
+        </button>
       </div>
 
       {!data ? <Spinner /> : (
         <>
-          <div className="card overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+          <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, overflow: 'hidden' }}>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50 text-left">
-                    <th className="px-4 py-3 font-semibold text-navy-900">User</th>
-                    <th className="px-4 py-3 font-semibold text-navy-900">Plan</th>
-                    <th className="px-4 py-3 font-semibold text-navy-900">Credits</th>
-                    <th className="px-4 py-3 font-semibold text-navy-900">Scans</th>
-                    <th className="px-4 py-3 font-semibold text-navy-900">Referrals</th>
-                    <th className="px-4 py-3 font-semibold text-navy-900">Joined</th>
-                    <th className="px-4 py-3 font-semibold text-navy-900">Actions</th>
+                  <tr style={{ borderBottom: `1px solid ${theme.border}`, background: theme.bg }}>
+                    <th style={th}>User</th><th style={th}>Plan</th><th style={th}>Credits</th><th style={th}>Scans</th><th style={th}>Referrals</th><th style={th}>Joined</th><th style={th}>Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody>
                   {data.users.map(u => (
-                    <tr key={u._id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-navy-900">{u.name}</div>
-                        <div className="text-slate-400 text-xs">{u.email}</div>
-                        {u.isAdmin && <span className="badge bg-brand-50 text-brand-700 text-xs">admin</span>}
+                    <tr key={u._id} style={{ borderBottom: `1px solid ${theme.border}` }}>
+                      <td style={td}>
+                        <div style={{ fontWeight: 600 }}>{u.name}</div>
+                        <div style={{ color: theme.textSecondary, fontSize: 11.5 }}>{u.email}</div>
+                        {u.isAdmin && <span style={{ fontSize: 10.5, fontWeight: 600, color: SITE_ACCENT, background: '#3CD07022', padding: '1px 7px', borderRadius: 20 }}>admin</span>}
                       </td>
-                      <td className="px-4 py-3">
+                      <td style={td}>
                         <select
                           value={u.plan}
                           onChange={e => handlePlanChange(u, e.target.value)}
-                          className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white"
+                          style={{ fontSize: 12, border: `1px solid ${theme.border}`, borderRadius: 6, padding: '4px 8px', background: theme.bg, color: theme.textPrimary }}
                         >
                           <option value="free">Free</option>
                           <option value="pro">Pro</option>
                         </select>
                       </td>
-                      <td className="px-4 py-3 font-medium text-navy-900">{u.credits}</td>
-                      <td className="px-4 py-3 text-slate-600">{u.scanCount}</td>
-                      <td className="px-4 py-3 text-slate-600">{u.referralCount}</td>
-                      <td className="px-4 py-3 text-slate-400 text-xs">
-                        {new Date(u.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => setCreditModal(u)}
-                            className="text-xs px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-50 transition-colors"
-                            title="Adjust credits"
-                          >
+                      <td style={{ ...td, fontWeight: 600 }}>{u.credits}</td>
+                      <td style={{ ...td, color: theme.textSecondary }}>{u.scanCount}</td>
+                      <td style={{ ...td, color: theme.textSecondary }}>{u.referralCount}</td>
+                      <td style={{ ...td, color: theme.textSecondary, fontSize: 11.5 }}>{new Date(u.createdAt).toLocaleDateString()}</td>
+                      <td style={td}>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button onClick={() => setCreditModal(u)} title="Adjust credits" style={{ padding: 6, borderRadius: 6, border: `1px solid ${theme.border}`, background: 'none', color: theme.textPrimary, cursor: 'pointer' }}>
                             <CreditCard className="w-3.5 h-3.5" />
                           </button>
                           {!u.isAdmin && (
-                            <button
-                              onClick={() => handleDeleteUser(u)}
-                              className="text-xs px-2 py-1 rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
-                              title="Delete user"
-                            >
+                            <button onClick={() => handleDeleteUser(u)} title="Delete user" style={{ padding: 6, borderRadius: 6, border: '1px solid #E0533C55', background: 'none', color: '#E0533C', cursor: 'pointer' }}>
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           )}
@@ -316,37 +316,36 @@ function UsersTab() {
               </table>
             </div>
           </div>
-
           <Pagination page={page} pages={data.pages} total={data.total} onPage={setPage} />
         </>
       )}
 
-      {/* Credit adjustment modal */}
       {creditModal && (
         <Modal title={`Adjust credits — ${creditModal.email}`} onClose={() => setCreditModal(null)}>
-          <p className="text-sm text-slate-500 mb-4">Current balance: <strong>{creditModal.credits}</strong> credits</p>
-          <div className="space-y-3">
+          <p style={{ fontSize: 13.5, color: theme.textSecondary, margin: '0 0 16px' }}>Current balance: <strong style={{ color: theme.textPrimary }}>{creditModal.credits}</strong> credits</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div>
-              <label className="block text-sm font-medium text-navy-900 mb-1">Amount (use negative to deduct)</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: theme.textSecondary, marginBottom: 6 }}>Amount (use negative to deduct)</label>
               <input
                 type="number"
-                className="input-field"
                 placeholder="e.g. 20 or -10"
                 value={creditAmt}
                 onChange={e => setCreditAmt(e.target.value)}
+                className="focus:!border-[#3CD070] focus:!outline-none"
+                style={{ width: '100%', boxSizing: 'border-box', background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: 6, padding: '10px 12px', fontSize: 14, color: theme.textPrimary }}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-navy-900 mb-1">Reason (optional)</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: theme.textSecondary, marginBottom: 6 }}>Reason (optional)</label>
               <input
-                type="text"
-                className="input-field"
                 placeholder="e.g. Compensation for failed scan"
                 value={creditReason}
                 onChange={e => setCreditReason(e.target.value)}
+                className="focus:!border-[#3CD070] focus:!outline-none"
+                style={{ width: '100%', boxSizing: 'border-box', background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: 6, padding: '10px 12px', fontSize: 14, color: theme.textPrimary }}
               />
             </div>
-            <button onClick={handleCreditSave} disabled={saving} className="btn-primary w-full justify-center">
+            <button onClick={handleCreditSave} disabled={saving} style={{ background: '#2A4736', color: '#F9F9F8', border: 'none', padding: '12px', borderRadius: 8, fontWeight: 600, fontSize: 14, cursor: saving ? 'default' : 'pointer', opacity: saving ? 0.7 : 1 }}>
               {saving ? 'Saving…' : 'Apply'}
             </button>
           </div>
@@ -356,73 +355,58 @@ function UsersTab() {
   );
 }
 
-// ─── Scans Tab ────────────────────────────────────────────────────────────────
+// ─── Scans Tab (real) ─────────────────────────────────────────────────────────
 
 function ScansTab() {
+  const { theme } = useSiteTheme();
   const [data, setData] = useState<{ scans: Scan[]; total: number; pages: number } | null>(null);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
     setData(null);
-    adminApi.listScans(page).then(r => setData(r.data));
+    adminApi.listScans(page).then(r => setData(r.data.data));
   }, [page]);
 
-  const statusColor: Record<string, string> = {
-    queued:    'bg-slate-100 text-slate-500',
-    running:   'bg-amber-50 text-amber-600',
-    completed: 'bg-emerald-50 text-emerald-700',
-    failed:    'bg-red-50 text-red-600',
-  };
+  const statusColor: Record<string, string> = { queued: theme.textSecondary, running: '#D99E32', completed: '#3CD070', failed: '#E0533C' };
+  const th: React.CSSProperties = { padding: '10px 14px', fontWeight: 600, fontSize: 12, color: theme.textSecondary, textAlign: 'left' };
+  const td: React.CSSProperties = { padding: '10px 14px', fontSize: 13 };
 
   return !data ? <Spinner /> : (
     <div>
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+      <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50 text-left">
-                <th className="px-4 py-3 font-semibold text-navy-900">URL</th>
-                <th className="px-4 py-3 font-semibold text-navy-900">User</th>
-                <th className="px-4 py-3 font-semibold text-navy-900">Status</th>
-                <th className="px-4 py-3 font-semibold text-navy-900">Score</th>
-                <th className="px-4 py-3 font-semibold text-navy-900">Credits</th>
-                <th className="px-4 py-3 font-semibold text-navy-900">Date</th>
-                <th className="px-4 py-3 font-semibold text-navy-900">Report</th>
+              <tr style={{ borderBottom: `1px solid ${theme.border}`, background: theme.bg }}>
+                <th style={th}>URL</th><th style={th}>User</th><th style={th}>Status</th><th style={th}>Score</th><th style={th}>Credits</th><th style={th}>Date</th><th style={th}>Report</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
-              {data.scans.map(s => (
-                <tr key={s._id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-4 py-3 max-w-[200px] truncate text-navy-900 font-medium">{s.url}</td>
-                  <td className="px-4 py-3">
-                    {s.userId ? (
-                      <div>
-                        <div className="font-medium text-navy-900">{s.userId.name}</div>
-                        <div className="text-slate-400 text-xs">{s.userId.email}</div>
-                      </div>
-                    ) : <span className="text-slate-400">—</span>}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`badge capitalize ${statusColor[s.status] ?? 'bg-slate-100 text-slate-500'}`}>
-                      {s.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 font-medium text-navy-900">
-                    {s.finalScore !== undefined ? `${s.finalScore}/100` : '—'}
-                  </td>
-                  <td className="px-4 py-3 text-slate-600">{s.creditsUsed ?? '—'}</td>
-                  <td className="px-4 py-3 text-slate-400 text-xs">
-                    {new Date(s.createdAt).toLocaleDateString()}
-                  </td>
-                  <td className="px-4 py-3">
-                    {s.status === 'completed' && (
-                      <Link href={`/report/${s._id}`} target="_blank" className="text-brand-600 hover:underline text-xs">
-                        View →
-                      </Link>
-                    )}
-                  </td>
-                </tr>
-              ))}
+            <tbody>
+              {data.scans.map(s => {
+                const c = statusColor[s.status] ?? theme.textSecondary;
+                return (
+                  <tr key={s._id} style={{ borderBottom: `1px solid ${theme.border}` }}>
+                    <td style={{ ...td, fontWeight: 600, maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.url}</td>
+                    <td style={td}>
+                      {s.userId ? (
+                        <div>
+                          <div style={{ fontWeight: 600 }}>{s.userId.name}</div>
+                          <div style={{ color: theme.textSecondary, fontSize: 11.5 }}>{s.userId.email}</div>
+                        </div>
+                      ) : <span style={{ color: theme.textSecondary }}>—</span>}
+                    </td>
+                    <td style={td}><span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: `${c}22`, color: c, textTransform: 'capitalize' }}>{s.status}</span></td>
+                    <td style={{ ...td, fontWeight: 600 }}>{s.finalScore !== undefined ? `${s.finalScore}/100` : '—'}</td>
+                    <td style={{ ...td, color: theme.textSecondary }}>{s.creditsUsed ?? '—'}</td>
+                    <td style={{ ...td, color: theme.textSecondary, fontSize: 11.5 }}>{new Date(s.createdAt).toLocaleDateString()}</td>
+                    <td style={td}>
+                      {s.status === 'completed' && (
+                        <Link href={`/report/${s._id}`} target="_blank" className="transition-colors hover:!text-[#5ddb8c]" style={{ color: SITE_ACCENT, fontSize: 12 }}>View →</Link>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -432,16 +416,17 @@ function ScansTab() {
   );
 }
 
-// ─── Contacts Tab ─────────────────────────────────────────────────────────────
+// ─── Contacts Tab (real) ──────────────────────────────────────────────────────
 
 function ContactsTab() {
-  const [data, setData]   = useState<{ contacts: Contact[]; total: number; pages: number } | null>(null);
-  const [page, setPage]   = useState(1);
+  const { theme } = useSiteTheme();
+  const [data, setData] = useState<{ contacts: Contact[]; total: number; pages: number } | null>(null);
+  const [page, setPage] = useState(1);
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const load = useCallback(() => {
     setData(null);
-    adminApi.listContacts(page).then(r => setData(r.data));
+    adminApi.listContacts(page).then(r => setData(r.data.data));
   }, [page]);
 
   useEffect(() => { load(); }, [load]);
@@ -452,50 +437,44 @@ function ContactsTab() {
     load();
   }
 
+  const th: React.CSSProperties = { padding: '10px 14px', fontWeight: 600, fontSize: 12, color: theme.textSecondary, textAlign: 'left' };
+  const td: React.CSSProperties = { padding: '10px 14px', fontSize: 13 };
+
   return !data ? <Spinner /> : (
     <div>
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+      <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50 text-left">
-                <th className="px-4 py-3 font-semibold text-navy-900">From</th>
-                <th className="px-4 py-3 font-semibold text-navy-900">Subject</th>
-                <th className="px-4 py-3 font-semibold text-navy-900">Message</th>
-                <th className="px-4 py-3 font-semibold text-navy-900">Date</th>
-                <th className="px-4 py-3 font-semibold text-navy-900"></th>
+              <tr style={{ borderBottom: `1px solid ${theme.border}`, background: theme.bg }}>
+                <th style={th}>From</th><th style={th}>Subject</th><th style={th}>Message</th><th style={th}>Date</th><th style={th}></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody>
               {data.contacts.map(c => (
-                <>
-                  <tr key={c._id} className="hover:bg-slate-50 transition-colors cursor-pointer" onClick={() => setExpanded(expanded === c._id ? null : c._id)}>
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-navy-900">{c.name}</div>
-                      <div className="text-slate-400 text-xs">{c.email}</div>
+                <Fragment key={c._id}>
+                  <tr style={{ borderBottom: `1px solid ${theme.border}`, cursor: 'pointer' }} onClick={() => setExpanded(expanded === c._id ? null : c._id)}>
+                    <td style={td}>
+                      <div style={{ fontWeight: 600 }}>{c.name}</div>
+                      <div style={{ color: theme.textSecondary, fontSize: 11.5 }}>{c.email}</div>
                     </td>
-                    <td className="px-4 py-3 text-slate-600">{c.subject}</td>
-                    <td className="px-4 py-3 text-slate-500 max-w-[240px] truncate">{c.message}</td>
-                    <td className="px-4 py-3 text-slate-400 text-xs">
-                      {new Date(c.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="px-4 py-3">
-                      <button
-                        onClick={e => { e.stopPropagation(); handleDelete(c._id); }}
-                        className="p-1.5 rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"
-                      >
+                    <td style={{ ...td, color: theme.textSecondary }}>{c.subject}</td>
+                    <td style={{ ...td, color: theme.textSecondary, maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.message}</td>
+                    <td style={{ ...td, color: theme.textSecondary, fontSize: 11.5 }}>{new Date(c.createdAt).toLocaleDateString()}</td>
+                    <td style={td}>
+                      <button onClick={e => { e.stopPropagation(); handleDelete(c._id); }} style={{ padding: 6, borderRadius: 6, border: '1px solid #E0533C55', background: 'none', color: '#E0533C', cursor: 'pointer' }}>
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </td>
                   </tr>
                   {expanded === c._id && (
-                    <tr key={`${c._id}-expanded`}>
-                      <td colSpan={5} className="px-4 py-4 bg-slate-50">
-                        <p className="text-sm text-slate-700 whitespace-pre-wrap">{c.message}</p>
+                    <tr>
+                      <td colSpan={5} style={{ padding: '14px', background: theme.bg }}>
+                        <p style={{ fontSize: 13.5, whiteSpace: 'pre-wrap', margin: 0 }}>{c.message}</p>
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>
@@ -506,27 +485,89 @@ function ContactsTab() {
   );
 }
 
+// ─── Revenue Tab (dummy — no billing backend yet) ─────────────────────────────
+
+const REVENUE_CARDS = [
+  { label: 'Collected this month', value: '$0', note: 'No billing provider connected yet' },
+  { label: 'Refunded', value: '$0', note: '—' },
+  { label: 'Outstanding', value: '$0', note: '—' },
+  { label: 'Lifetime revenue', value: '$0', note: '—' },
+];
+
+function RevenueTab() {
+  const { theme } = useSiteTheme();
+  return (
+    <div>
+      <div style={{ marginBottom: 16, fontSize: 12.5, color: theme.textSecondary }}>
+        Preview — Stripe isn&apos;t wired up yet, so these are placeholder figures matching the design, not real transactions.
+      </div>
+      <div className="grid grid-cols-2 lg:grid-cols-4" style={{ gap: 16, marginBottom: 20 }}>
+        {REVENUE_CARDS.map(c => (
+          <div key={c.label} style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 20 }}>
+            <div style={{ fontSize: 11.5, color: theme.textSecondary, marginBottom: 6 }}>{c.label}</div>
+            <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 6 }}>{c.value}</div>
+            <div style={{ fontSize: 11, color: theme.textSecondary }}>{c.note}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 40, textAlign: 'center', color: theme.textSecondary, fontSize: 13.5 }}>
+        Transaction history will appear here once billing is connected.
+      </div>
+    </div>
+  );
+}
+
+// ─── Logs Tab (dummy — no activity-log backend yet) ───────────────────────────
+
+const LOG_KIND_COLOR: Record<string, string> = { billing: '#3CD070', auth: '#7FB2FF', system: '#D99E32', account: '#B57FE0' };
+const SAMPLE_LOGS = [
+  { time: '—', kind: 'system', message: 'Activity log not connected yet — this feed will show billing, auth, account and system events.' },
+];
+
+function LogsTab() {
+  const { theme } = useSiteTheme();
+  return (
+    <div>
+      <div style={{ marginBottom: 16, fontSize: 12.5, color: theme.textSecondary }}>
+        Preview — no activity-log backend exists yet, so this is a placeholder feed matching the design.
+      </div>
+      <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, overflow: 'hidden' }}>
+        {SAMPLE_LOGS.map((log, i) => (
+          <div key={i} style={{ display: 'grid', gridTemplateColumns: '150px 92px 1fr', padding: '12px 16px', borderBottom: i < SAMPLE_LOGS.length - 1 ? `1px solid ${theme.border}` : undefined, fontSize: 12.5, alignItems: 'center', gap: 8 }}>
+            <span style={{ color: theme.textSecondary, fontVariantNumeric: 'tabular-nums' }}>{log.time}</span>
+            <span style={{ fontSize: 10.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.04em', color: LOG_KIND_COLOR[log.kind], background: `${LOG_KIND_COLOR[log.kind]}22`, padding: '2px 8px', borderRadius: 20, width: 'fit-content' }}>
+              {log.kind}
+            </span>
+            <span>{log.message}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Shared components ────────────────────────────────────────────────────────
 
 function Spinner() {
   return (
-    <div className="flex items-center justify-center py-20">
-      <div className="w-8 h-8 rounded-full border-4 border-brand-200 border-t-brand-600 animate-spin" />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 0', color: SITE_ACCENT }}>
+      Loading…
     </div>
   );
 }
 
 function Pagination({ page, pages, total, onPage }: { page: number; pages: number; total: number; onPage: (p: number) => void }) {
+  const { theme } = useSiteTheme();
   if (pages <= 1) return null;
   return (
-    <div className="flex items-center justify-between mt-4 text-sm text-slate-500">
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 14, fontSize: 13, color: theme.textSecondary }}>
       <span>{total} total</span>
-      <div className="flex items-center gap-2">
-        <button disabled={page === 1} onClick={() => onPage(page - 1)} className="p-1.5 rounded-lg border border-slate-200 disabled:opacity-40 hover:bg-slate-50 transition-colors">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <button disabled={page === 1} onClick={() => onPage(page - 1)} style={{ padding: 6, borderRadius: 6, border: `1px solid ${theme.border}`, background: 'none', color: theme.textPrimary, cursor: page === 1 ? 'default' : 'pointer', opacity: page === 1 ? 0.4 : 1 }}>
           <ChevronLeft className="w-4 h-4" />
         </button>
-        <span className="text-navy-900 font-medium">{page} / {pages}</span>
-        <button disabled={page === pages} onClick={() => onPage(page + 1)} className="p-1.5 rounded-lg border border-slate-200 disabled:opacity-40 hover:bg-slate-50 transition-colors">
+        <span style={{ color: theme.textPrimary, fontWeight: 600 }}>{page} / {pages}</span>
+        <button disabled={page === pages} onClick={() => onPage(page + 1)} style={{ padding: 6, borderRadius: 6, border: `1px solid ${theme.border}`, background: 'none', color: theme.textPrimary, cursor: page === pages ? 'default' : 'pointer', opacity: page === pages ? 0.4 : 1 }}>
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
@@ -535,12 +576,13 @@ function Pagination({ page, pages, total, onPage }: { page: number; pages: numbe
 }
 
 function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
+  const { theme } = useSiteTheme();
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-      <div className="card p-6 w-full max-w-md">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-bold text-navy-900">{title}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-navy-900 transition-colors text-xl leading-none">&times;</button>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: '#00000066' }}>
+      <div onClick={e => e.stopPropagation()} style={{ border: `1px solid ${theme.border}`, background: theme.card, borderRadius: 8, padding: 24, width: '100%', maxWidth: 420 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <h3 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>{title}</h3>
+          <button onClick={onClose} className="transition-colors hover:!text-[#3CD070]" style={{ color: theme.textSecondary, background: 'none', border: 'none', fontSize: 20, lineHeight: 1, cursor: 'pointer' }}>&times;</button>
         </div>
         {children}
       </div>

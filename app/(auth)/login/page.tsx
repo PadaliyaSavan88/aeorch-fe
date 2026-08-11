@@ -3,13 +3,27 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Eye, EyeOff, Zap } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { authApi } from '@/lib/api';
 import { saveTokens } from '@/lib/auth';
+import SiteThemeProvider, { useSiteTheme } from '@/components/site/SiteThemeProvider';
+import { SITE_ACCENT, SITE_CTA_BG, SITE_CTA_BG_HOVER } from '@/lib/siteTheme';
 
 const GOOGLE_AUTH_URL = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
 
-export default function LoginPage() {
+function Logo() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 28 28" style={{ flexShrink: 0 }}>
+      <rect width="28" height="28" rx="7" fill={SITE_ACCENT} />
+      <rect x="6" y="17" width="3.5" height="7" rx="1" fill="#121314" />
+      <rect x="12" y="13" width="3.5" height="11" rx="1" fill="#121314" />
+      <rect x="18" y="9" width="3.5" height="15" rx="1" fill="#121314" />
+    </svg>
+  );
+}
+
+function LoginForm() {
+  const { theme, themeName, toggleTheme } = useSiteTheme();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,8 +36,8 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const { data } = await authApi.login(email, password);
-      saveTokens(data.accessToken, data.refreshToken);
+      const { data: body } = await authApi.login(email, password);
+      saveTokens(body.data.accessToken, body.data.refreshToken);
       router.push('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid email or password.');
@@ -32,89 +46,119 @@ export default function LoginPage() {
     }
   }
 
+  const inputStyle: React.CSSProperties = {
+    width: '100%', boxSizing: 'border-box', background: theme.card, border: `1px solid ${theme.border}`,
+    borderRadius: 8, padding: '12px 14px', fontSize: 14, color: theme.textPrimary, marginBottom: 16,
+    transition: 'border-color 150ms ease', fontFamily: 'inherit',
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-4 py-12">
-      <Link href="/" className="flex items-center gap-2 mb-10">
-        <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-brand-600">
-          <Zap className="w-5 h-5 text-white" />
-        </span>
-        <span className="font-bold text-2xl text-navy-900">AEO<span className="text-brand-600">rch</span></span>
-      </Link>
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <header style={{ padding: '20px 48px', borderBottom: `1px solid ${theme.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, width: 'fit-content' }}>
+          <Logo />
+          <span style={{ fontSize: 17, fontWeight: 700, color: theme.textPrimary }}>Aeorch</span>
+        </Link>
+        <button
+          onClick={toggleTheme}
+          className="transition-colors hover:!border-[#3CD070] hover:!text-[#3CD070] focus:outline focus:outline-2 focus:outline-[#3CD070] focus:outline-offset-2"
+          style={{ background: 'none', border: `1px solid ${theme.border}`, color: theme.textSecondary, padding: '7px 12px', borderRadius: 20, fontSize: 12.5, fontWeight: 600, cursor: 'pointer' }}
+        >
+          {themeName === 'dark' ? 'Light mode' : 'Dark mode'}
+        </button>
+      </header>
 
-      <div className="w-full max-w-md">
-        <div className="card p-8">
-          <h1 className="text-2xl font-bold text-navy-900 mb-1">Welcome back</h1>
-          <p className="text-slate-500 text-sm mb-8">Sign in to your Aeorch account</p>
+      <div style={{ maxWidth: 400, width: '100%', margin: '0 auto', padding: '96px 24px', flex: 1 }}>
+        <h1 style={{ fontSize: 26, fontWeight: 700, margin: '0 0 8px', letterSpacing: '-0.01em' }}>Log in to Aeorch</h1>
+        <p style={{ fontSize: 14, color: theme.textSecondary, margin: '0 0 32px' }}>Welcome back, pick up where you left off.</p>
 
-          {error && (
-            <div className="mb-5 p-4 rounded-xl bg-red-50 border border-red-100 text-sm text-red-600">
-              {error}
-            </div>
-          )}
+        {error && (
+          <div style={{ marginBottom: 20, padding: '12px 14px', borderRadius: 8, background: '#E0533C1a', border: '1px solid #E0533C55', fontSize: 13.5, color: '#E0533C' }}>
+            {error}
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-navy-900 mb-1.5">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="input-field"
-                placeholder="you@example.com"
-                required
-                autoComplete="email"
-              />
-            </div>
+        <form onSubmit={handleSubmit}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: theme.textSecondary, marginBottom: 6 }}>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="you@youragency.com"
+            required
+            autoComplete="email"
+            className="focus:!border-[#3CD070] focus:!outline-none"
+            style={inputStyle}
+          />
 
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm font-medium text-navy-900">Password</label>
-              </div>
-              <div className="relative">
-                <input
-                  type={showPw ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="input-field pr-11"
-                  placeholder="••••••••"
-                  required
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(s => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                >
-                  {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-
-            <button type="submit" className="btn-primary w-full justify-center !py-3" disabled={loading}>
-              {loading ? 'Signing in…' : 'Sign in'}
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: theme.textSecondary, marginBottom: 6 }}>Password</label>
+          <div style={{ position: 'relative' }}>
+            <input
+              type={showPw ? 'text' : 'password'}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+              autoComplete="current-password"
+              className="focus:!border-[#3CD070] focus:!outline-none"
+              style={{ ...inputStyle, marginBottom: 24, paddingRight: 40 }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPw(s => !s)}
+              style={{ position: 'absolute', right: 12, top: 12, background: 'none', border: 'none', color: theme.textSecondary, cursor: 'pointer', padding: 0 }}
+            >
+              {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
-          </form>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100" /></div>
-            <span className="relative bg-white px-4 text-xs text-slate-400 mx-auto block w-fit">or continue with</span>
           </div>
 
-          <a
-            href={GOOGLE_AUTH_URL}
-            className="btn-secondary w-full justify-center gap-3"
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              display: 'block', width: '100%', textAlign: 'center', background: SITE_CTA_BG, color: '#F9F9F8',
+              padding: '13px 24px', borderRadius: 8, fontWeight: 600, fontSize: 15, marginBottom: 20,
+              border: 'none', cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.7 : 1, fontFamily: 'inherit',
+            }}
+            onMouseEnter={e => !loading && (e.currentTarget.style.background = SITE_CTA_BG_HOVER)}
+            onMouseLeave={e => (e.currentTarget.style.background = SITE_CTA_BG)}
           >
-            <GoogleIcon />
-            Continue with Google
-          </a>
+            {loading ? 'Signing in…' : 'Log in'}
+          </button>
+        </form>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '0 0 20px' }}>
+          <div style={{ flex: 1, height: 1, background: theme.border }} />
+          <span style={{ fontSize: 12, color: theme.textSecondary }}>or continue with</span>
+          <div style={{ flex: 1, height: 1, background: theme.border }} />
         </div>
 
-        <p className="text-center text-sm text-slate-500 mt-6">
-          Don&apos;t have an account?{' '}
-          <Link href="/signup" className="text-brand-600 font-medium hover:underline">Sign up free</Link>
+        <a
+          href={GOOGLE_AUTH_URL}
+          className="transition-colors hover:!border-[#3CD070]"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, width: '100%', boxSizing: 'border-box',
+            border: `1px solid ${theme.border}`, borderRadius: 8, padding: '12px 14px', fontSize: 14, fontWeight: 600,
+            color: theme.textPrimary, marginBottom: 20,
+          }}
+        >
+          <GoogleIcon />
+          Continue with Google
+        </a>
+
+        <p style={{ textAlign: 'center', fontSize: 13.5, color: theme.textSecondary, margin: 0 }}>
+          Don&apos;t have an account? <Link href="/signup" style={{ color: SITE_ACCENT }}>Sign up</Link>
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <SiteThemeProvider>
+      <LoginForm />
+    </SiteThemeProvider>
   );
 }
 

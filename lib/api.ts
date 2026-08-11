@@ -23,10 +23,10 @@ api.interceptors.response.use(
       const refreshToken = localStorage.getItem('refreshToken');
       if (refreshToken) {
         try {
-          const { data } = await axios.post(`${BASE}/auth/refresh`, { refreshToken });
-          localStorage.setItem('accessToken', data.accessToken);
-          localStorage.setItem('refreshToken', data.refreshToken);
-          original.headers.Authorization = `Bearer ${data.accessToken}`;
+          const { data: body } = await axios.post(`${BASE}/auth/refresh`, { refreshToken });
+          localStorage.setItem('accessToken', body.data.accessToken);
+          localStorage.setItem('refreshToken', body.data.refreshToken);
+          original.headers.Authorization = `Bearer ${body.data.accessToken}`;
           return api(original);
         } catch {
           localStorage.removeItem('accessToken');
@@ -54,6 +54,8 @@ export const authApi = {
   me: () => api.get('/auth/me'),
 
   referral: () => api.get('/auth/referral'),
+
+  exchangeGoogleCode: (code: string) => api.post('/auth/google/exchange', { code }),
 };
 
 // ─── Scans ────────────────────────────────────────────────────────────────────
@@ -107,4 +109,10 @@ export const adminApi = {
 export const contactApi = {
   submit: (data: { name: string; email: string; subject: string; message: string }) =>
     api.post('/contact', data),
+};
+
+// ─── Tools (public, no auth) ───────────────────────────────────────────────────
+
+export const toolsApi = {
+  llmTxtCheck: (url: string) => api.post('/tools/llm-txt-check', { url }),
 };

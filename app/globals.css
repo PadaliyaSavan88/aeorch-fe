@@ -57,33 +57,103 @@
   }
 }
 
-/* Prose styles for blog content */
-.prose-brand {
-  @apply prose prose-slate max-w-none;
+/* Site redesign prose — colors come from --site-* custom properties set by SiteThemeProvider,
+   since the post body is rendered server-side via MDXRemote and can't know the client's theme
+   choice ahead of time. Deliberately separate from .prose-brand above, which the /privacy and
+   /about pages still use. */
+.prose-blog {
+  color: var(--site-text);
+  max-width: none;
 }
-
-.prose-brand h2 {
-  @apply text-2xl font-bold text-navy-900 mt-10 mb-4;
+.prose-blog h2 {
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 38px 0 14px;
+  color: var(--site-text);
 }
-
-.prose-brand h3 {
-  @apply text-xl font-semibold text-navy-900 mt-8 mb-3;
+.prose-blog h3 {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 26px 0 10px;
+  color: var(--site-text);
 }
-
-.prose-brand p {
-  @apply text-slate-600 leading-relaxed mb-5;
+.prose-blog p {
+  font-size: 16px;
+  line-height: 1.75;
+  margin: 0 0 22px;
+  color: var(--site-text);
 }
-
-.prose-brand a {
-  @apply text-brand-600 hover:text-brand-700 underline underline-offset-2;
+.prose-blog ul,
+.prose-blog ol {
+  font-size: 15.5px;
+  line-height: 1.85;
+  margin: 0 0 22px;
+  padding-left: 22px;
+  color: var(--site-text);
 }
-
-.prose-brand ul {
-  @apply list-disc list-inside space-y-2 text-slate-600 mb-5;
+.prose-blog ul {
+  list-style-type: disc;
 }
-
-.prose-brand strong {
-  @apply font-semibold text-navy-900;
+.prose-blog ol {
+  list-style-type: decimal;
+}
+.prose-blog li::marker {
+  color: var(--site-text-secondary);
+}
+.prose-blog a {
+  color: #3cd070;
+  font-weight: 600;
+  text-decoration: none;
+}
+.prose-blog a:hover {
+  color: #5ddb8c;
+}
+.prose-blog strong {
+  font-weight: 700;
+  color: var(--site-text);
+}
+.prose-blog :not(pre) > code {
+  background: #00000022;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.92em;
+}
+.prose-blog pre {
+  background: var(--site-code-bg);
+  border: 1px solid var(--site-border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 22px;
+}
+.prose-blog pre code {
+  background: none;
+  padding: 0;
+}
+.prose-blog table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  margin: 0 0 26px;
+}
+.prose-blog th {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 2px solid var(--site-border);
+  font-weight: 700;
+}
+.prose-blog td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--site-border);
+  vertical-align: top;
+}
+.prose-blog blockquote {
+  border-left: 3px solid var(--site-border);
+  padding-left: 16px;
+  color: var(--site-text-secondary);
 }
 
 /* Score ring animation */
