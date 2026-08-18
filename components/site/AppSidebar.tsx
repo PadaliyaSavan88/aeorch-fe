@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LogOut } from 'lucide-react';
 import { useSiteTheme } from './SiteThemeProvider';
-import { SITE_ACCENT } from '@/lib/siteTheme';
 import { authApi } from '@/lib/api';
 import { clearTokens } from '@/lib/auth';
 
@@ -19,14 +18,11 @@ const NAV: { key: AppNavKey; href: string; label: string; badge?: string }[] = [
   { key: 'billing', href: '/agency/billing', label: 'Billing' },
 ];
 
+// Sidebar bg is fixed dark green across both themes (see comment below), so the logo
+// always uses the dark-background icon rather than swapping with themeName.
 function Logo() {
   return (
-    <svg width="24" height="24" viewBox="0 0 28 28" style={{ flexShrink: 0 }}>
-      <rect width="28" height="28" rx="7" fill={SITE_ACCENT} />
-      <rect x="6" y="17" width="3.5" height="7" rx="1" fill="#121314" />
-      <rect x="12" y="13" width="3.5" height="11" rx="1" fill="#121314" />
-      <rect x="18" y="9" width="3.5" height="15" rx="1" fill="#121314" />
-    </svg>
+    <img src="/logo/icon-dark.png" alt="Aeorch" width={24} height={24} style={{ flexShrink: 0, borderRadius: 6 }} />
   );
 }
 

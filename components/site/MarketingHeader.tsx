@@ -16,13 +16,15 @@ const navLinks: { key: MarketingNavKey; href: string; label: string }[] = [
 ];
 
 function Logo() {
+  const { themeName } = useSiteTheme();
   return (
-    <svg width="28" height="28" viewBox="0 0 28 28" style={{ flexShrink: 0 }}>
-      <rect width="28" height="28" rx="7" fill={SITE_ACCENT} />
-      <rect x="6" y="17" width="3.5" height="7" rx="1" fill="#121314" />
-      <rect x="12" y="13" width="3.5" height="11" rx="1" fill="#121314" />
-      <rect x="18" y="9" width="3.5" height="15" rx="1" fill="#121314" />
-    </svg>
+    <img
+      src={themeName === 'dark' ? '/logo/icon-dark.png' : '/logo/icon-light.png'}
+      alt="Aeorch"
+      width={28}
+      height={28}
+      style={{ flexShrink: 0, borderRadius: 7 }}
+    />
   );
 }
 
