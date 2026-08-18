@@ -1,0 +1,44 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: aeorch-frontend-deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: self-hosted
+    steps:
+      - name: Pull latest main
+        working-directory: /home/heisenberg/project/aeoarch/aeorch-fe
+        run: git pull origin main
+
+      - name: Install dependencies
+        working-directory: /home/heisenberg/project/aeoarch/aeorch-fe
+        run: npm ci
+
+      - name: Build
+        working-directory: /home/heisenberg/project/aeoarch/aeorch-fe
+        run: npm run build
+
+      - name: Restart via PM2
+        working-directory: /home/heisenberg/project/aeoarch/aeorch-fe
+        run: pm2 restart aeorch-frontend
