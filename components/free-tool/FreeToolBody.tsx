@@ -12,6 +12,18 @@ interface BotAccessResult {
   status: 'allowed' | 'blocked' | 'unspecified';
 }
 
+const STEPS = [
+  { title: 'Paste your site URL', description: 'No login or credits required — just the domain you want to check.' },
+  { title: 'Aeorch checks AI-crawler access', description: 'We check whether major AI bots (GPTBot, ClaudeBot, Google-Extended, PerplexityBot) can access your site, and whether llm.txt and ai-plugin.json already exist.' },
+  { title: 'Download or copy the generated files', description: 'If either file is missing, Aeorch generates it from your site so you can drop it straight in.' },
+];
+
+const FAQS = [
+  { q: 'Is the llm.txt generator really free?', a: 'Yes — no login, no scan credits, no card required. Every check is free.' },
+  { q: 'What does the free tool check?', a: 'It checks whether major AI bots can access your site, and whether you already have an llm.txt and ai-plugin.json file.' },
+  { q: 'What if my site already has these files?', a: "You'll see a confirmation that llm.txt and ai-plugin.json are already present — nothing to generate." },
+];
+
 interface CheckResult {
   url: string;
   botAccess: BotAccessResult[];
@@ -184,6 +196,31 @@ export default function FreeToolBody() {
         >
           Run a full scan
         </Link>
+      </section>
+
+      <section style={{ maxWidth: 680, margin: '0 auto', padding: '100px 24px 20px' }}>
+        <h2 style={{ fontSize: 24, fontWeight: 700, textAlign: 'center', margin: '0 0 40px' }}>How it works</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3" style={{ gap: 24 }}>
+          {STEPS.map((s, i) => (
+            <div key={s.title} style={{ textAlign: 'center' }}>
+              <div style={{ width: 30, height: 30, borderRadius: '50%', background: '#3CD07026', color: '#3CD070', fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                {i + 1}
+              </div>
+              <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 6px' }}>{s.title}</h3>
+              <p style={{ fontSize: 13, color: theme.textSecondary, lineHeight: 1.6, margin: 0 }}>{s.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 680, margin: '0 auto', padding: '60px 24px 120px' }}>
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 24px' }}>Questions</h2>
+        {FAQS.map(item => (
+          <div key={item.q} style={{ borderBottom: `1px solid ${theme.border}`, padding: '18px 0' }}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 6px' }}>{item.q}</h3>
+            <div style={{ fontSize: 14, color: theme.textSecondary, lineHeight: 1.6 }}>{item.a}</div>
+          </div>
+        ))}
       </section>
     </>
   );

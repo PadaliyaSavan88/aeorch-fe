@@ -28,7 +28,7 @@ export default function AboutBody() {
         <div className="prose-blog">
           <h2>Why we built Aeorch</h2>
           <p>
-            When AI-powered search tools — ChatGPT, Perplexity, Google AI Overviews — became mainstream, most website owners had no way to know whether their sites were optimised for this new layer of discovery. Traditional SEO tools check Google signals. Nobody was checking AI signals.
+            When AI-powered search tools — <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer">ChatGPT</a>, <a href="https://www.perplexity.ai" target="_blank" rel="noopener noreferrer">Perplexity</a>, <a href="https://blog.google/products/search/generative-ai-search/" target="_blank" rel="noopener noreferrer">Google AI Overviews</a> — became mainstream, most website owners had no way to know whether their sites were optimised for this new layer of discovery. Traditional SEO tools check Google signals. Nobody was checking AI signals.
           </p>
           <p>
             Aeorch was built to fill that gap. We check not just whether your website ranks in Google, but whether it&apos;s discoverable, readable, and citable by the AI engines that are increasingly where people go for answers.

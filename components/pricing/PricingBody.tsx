@@ -104,7 +104,7 @@ export default function PricingBody() {
         <h2 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 24px' }}>Questions</h2>
         {FAQS.map(item => (
           <div key={item.q} style={{ borderBottom: `1px solid ${theme.border}`, padding: '18px 0' }}>
-            <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>{item.q}</div>
+            <h3 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 6px' }}>{item.q}</h3>
             <div style={{ fontSize: 14, color: theme.textSecondary, lineHeight: 1.6 }}>{item.a}</div>
           </div>
         ))}

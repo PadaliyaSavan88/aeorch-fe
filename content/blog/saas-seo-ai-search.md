@@ -61,5 +61,6 @@ A features table is naturally AEO-friendly if it's actual HTML (or schema-backed
 - [What Are AI Citations and Why They're the New Backlinks](/blog/ai-citations-new-backlinks)
 - [How to Get Cited by ChatGPT and Perplexity](/blog/optimize-content-for-ai-citations)
 - [Website Authority Checker: What It Measures](/blog/website-authority-checker)
+- [schema.org: FAQPage](https://schema.org/FAQPage)
 
 Audit your site across SEO, AEO, and GEO in the [complete website audit checklist](/blog/complete-website-audit-checklist).

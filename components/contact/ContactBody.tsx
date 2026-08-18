@@ -8,6 +8,12 @@ import { SITE_ACCENT, SITE_CTA_BG, SITE_CTA_BG_HOVER } from '@/lib/siteTheme';
 
 const SUBJECTS = ['General question', 'Premium plan enquiry', 'Bug report', 'Partnership', 'Other'];
 
+const FAQS = [
+  { q: 'How fast does Aeorch respond to messages?', a: 'We typically respond within one business day.' },
+  { q: 'How do I report a bug?', a: "Select \"Bug report\" from the subject dropdown below and describe the issue — we read every submission." },
+  { q: 'Do you offer white-label reports for agencies?', a: 'White-label PDF export is an Agency-tier feature — reach out via Premium plan enquiry for agency onboarding.' },
+];
+
 export default function ContactBody() {
   const { theme } = useSiteTheme();
   const [form, setForm] = useState({ name: '', email: '', subject: SUBJECTS[0], message: '' });
@@ -137,6 +143,16 @@ export default function ContactBody() {
             </>
           )}
         </div>
+      </section>
+
+      <section style={{ maxWidth: 720, margin: '0 auto', padding: '0 24px 100px' }}>
+        <h2 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 24px' }}>Questions</h2>
+        {FAQS.map(item => (
+          <div key={item.q} style={{ borderBottom: `1px solid ${theme.border}`, padding: '18px 0' }}>
+            <h3 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 6px' }}>{item.q}</h3>
+            <div style={{ fontSize: 14, color: theme.textSecondary, lineHeight: 1.6 }}>{item.a}</div>
+          </div>
+        ))}
       </section>
     </>
   );

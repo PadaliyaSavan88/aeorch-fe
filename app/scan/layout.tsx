@@ -14,6 +14,35 @@ export const metadata: Metadata = {
   },
 };
 
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+    { '@type': 'ListItem', position: 2, name: 'Scan', item: `${siteUrl}/scan` },
+  ],
+};
+
+// Kept in sync with SCAN_STEPS in app/scan/page.tsx — structured data should match visible content.
+const howToJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'How to run a free SEO, AEO & GEO audit',
+  step: [
+    { '@type': 'HowToStep', name: 'Discovering pages via sitemap' },
+    { '@type': 'HowToStep', name: 'Crawling and analysing each page' },
+    { '@type': 'HowToStep', name: 'Running SEO, AEO & GEO checks' },
+    { '@type': 'HowToStep', name: 'Checking AI bot access' },
+    { '@type': 'HowToStep', name: 'Generating your report' },
+  ],
+};
+
 export default function ScanLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }} />
+      {children}
+    </>
+  );
 }

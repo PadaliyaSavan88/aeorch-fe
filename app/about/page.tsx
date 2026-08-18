@@ -34,11 +34,21 @@ const breadcrumbJsonLd = {
   ],
 };
 
+const webPageJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'About Aeorch — Free SEO, AEO & GEO Audit Tool',
+  url: `${siteUrl}/about`,
+  datePublished: '2026-08-18',
+  dateModified: '2026-08-18',
+};
+
 export default function AboutPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }} />
       <SiteThemeProvider>
         <MarketingHeader />
         <AboutBody />

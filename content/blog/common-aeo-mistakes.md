@@ -76,5 +76,6 @@ Most of these are structural and checkable — they don't require rewriting your
 - [What is AEO (Answer Engine Optimization)?](/blog/what-is-aeo)
 - [How to Add FAQ Schema Markup (Step-by-Step)](/blog/faq-schema-markup-guide)
 - [Is Your Site Blocked From GPTBot or ClaudeBot?](/blog/check-ai-crawler-access)
+- [schema.org: HowTo](https://schema.org/HowTo)
 
 Catch all of these in one pass with the [complete SEO, AEO, GEO audit checklist](/blog/complete-website-audit-checklist).

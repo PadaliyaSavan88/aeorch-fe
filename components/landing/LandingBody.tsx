@@ -265,20 +265,22 @@ function FAQ() {
       <h2 style={{ fontSize: 24, fontWeight: 700, margin: '0 0 24px' }}>Questions</h2>
       {FAQS.map((f, i) => (
         <div key={f.question} style={{ borderBottom: `1px solid ${theme.border}` }}>
-          <button
-            onClick={() => setOpen(open === i ? null : i)}
-            aria-expanded={open === i}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16,
-              padding: '18px 0', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', color: theme.textPrimary,
-            }}
-          >
-            <span style={{ fontSize: 15, fontWeight: 600 }}>{f.question}</span>
-            <ChevronDown
-              className="transition-transform flex-shrink-0"
-              style={{ width: 16, height: 16, color: theme.textSecondary, marginTop: 2, transform: open === i ? 'rotate(180deg)' : undefined }}
-            />
-          </button>
+          <h3 style={{ margin: 0 }}>
+            <button
+              onClick={() => setOpen(open === i ? null : i)}
+              aria-expanded={open === i}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16,
+                padding: '18px 0', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', color: theme.textPrimary,
+              }}
+            >
+              <span style={{ fontSize: 15, fontWeight: 600 }}>{f.question}</span>
+              <ChevronDown
+                className="transition-transform flex-shrink-0"
+                style={{ width: 16, height: 16, color: theme.textSecondary, marginTop: 2, transform: open === i ? 'rotate(180deg)' : undefined }}
+              />
+            </button>
+          </h3>
           {open === i && (
             <p style={{ fontSize: 14, color: theme.textSecondary, lineHeight: 1.6, margin: '0 0 18px' }}>{f.answer}</p>
           )}

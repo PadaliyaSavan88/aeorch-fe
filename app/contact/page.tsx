@@ -12,12 +12,46 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteUrl}/contact` },
 };
 
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+    { '@type': 'ListItem', position: 2, name: 'Contact', item: `${siteUrl}/contact` },
+  ],
+};
+
+const webPageJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: 'Contact Aeorch',
+  url: `${siteUrl}/contact`,
+  datePublished: '2026-08-18',
+  dateModified: '2026-08-18',
+};
+
+// Kept in sync with the FAQS array in components/contact/ContactBody.tsx — structured data should match visible content.
+const faqJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    { '@type': 'Question', name: 'How fast does Aeorch respond to messages?', acceptedAnswer: { '@type': 'Answer', text: 'We typically respond within one business day.' } },
+    { '@type': 'Question', name: 'How do I report a bug?', acceptedAnswer: { '@type': 'Answer', text: 'Select "Bug report" from the subject dropdown below and describe the issue — we read every submission.' } },
+    { '@type': 'Question', name: 'Do you offer white-label reports for agencies?', acceptedAnswer: { '@type': 'Answer', text: 'White-label PDF export is an Agency-tier feature — reach out via Premium plan enquiry for agency onboarding.' } },
+  ],
+};
+
 export default function ContactPage() {
   return (
-    <SiteThemeProvider>
-      <MarketingHeader />
-      <ContactBody />
-      <SiteFooter links={[{ href: '/', label: 'Home' }, { href: '/about', label: 'About' }]} />
-    </SiteThemeProvider>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <SiteThemeProvider>
+        <MarketingHeader />
+        <ContactBody />
+        <SiteFooter links={[{ href: '/', label: 'Home' }, { href: '/about', label: 'About' }]} />
+      </SiteThemeProvider>
+    </>
   );
 }

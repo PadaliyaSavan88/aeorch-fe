@@ -72,5 +72,6 @@ Since the two disciplines require different signals, a useful audit checks them 
 - [What is AEO (Answer Engine Optimization)?](/blog/what-is-aeo)
 - [SEO vs AEO vs GEO: The Complete Guide](/blog/seo-aeo-geo-guide)
 - [Free AEO Checker: Audit Your Answer Engine Score](/blog/free-aeo-checker)
+- [OpenAI GPTBot documentation](https://platform.openai.com/docs/gptbot)
 
 See both scored side by side in the [complete SEO, AEO, GEO audit checklist](/blog/complete-website-audit-checklist).
