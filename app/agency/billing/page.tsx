@@ -1,6 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { organizationApi } from '@/lib/api';
+import { isLoggedIn } from '@/lib/auth';
 import SiteThemeProvider, { useSiteTheme } from '@/components/site/SiteThemeProvider';
 import AppShell from '@/components/site/AppShell';
 import { SITE_ACCENT } from '@/lib/siteTheme';
@@ -8,16 +12,17 @@ import { SITE_ACCENT } from '@/lib/siteTheme';
 type View = 'billing' | 'change-plan' | 'cancel';
 type PlanKey = 'agency' | 'starter';
 
+interface Organization {
+  _id: string;
+  plan: PlanKey;
+  siteLimit: number;
+  seatLimit: number;
+}
+
 const PLANS: Record<PlanKey, { name: string; label: string; desc: string }> = {
   agency: { name: 'Agency', label: 'Agency · $79/mo', desc: 'Up to 15 sites, competitor comparison, white-label PDF' },
   starter: { name: 'Starter', label: 'Starter · $29/mo', desc: '1 site, monthly re-scan, alerts' },
 };
-
-const USAGE = [
-  { label: 'Sites monitored', value: '12 / 15', pct: 80 },
-  { label: 'Team seats', value: '3 / 5', pct: 60 },
-  { label: 'PDF exports this month', value: '24', pct: 40 },
-];
 
 const INVOICES = [
   { date: 'Aug 7, 2026', desc: 'Agency plan (monthly)', amount: '$79.00' },
@@ -28,14 +33,68 @@ const INVOICES = [
 
 function BillingBody() {
   const { theme } = useSiteTheme();
+  const router = useRouter();
+
+  const [loading, setLoading] = useState(true);
+  const [org, setOrg] = useState<Organization | null>(null);
+  const [siteCount, setSiteCount] = useState(0);
+  const [memberCount, setMemberCount] = useState(0);
+  const [pdfExportCount, setPdfExportCount] = useState(0);
+
   const [view, setView] = useState<View>('billing');
   const [plan, setPlan] = useState<PlanKey>('agency');
   const [selectedPlan, setSelectedPlan] = useState<PlanKey>('agency');
   const [cancelling, setCancelling] = useState(false);
   const [cancelled, setCancelled] = useState(false);
 
+  useEffect(() => {
+    if (!isLoggedIn()) { router.replace('/login'); return; }
+
+    organizationApi.getMine()
+      .then(res => {
+        const data = res.data.data;
+        setOrg(data.organization);
+        setPlan(data.organization.plan);
+        setSiteCount(data.sites.length);
+        setMemberCount(data.members.length);
+        setPdfExportCount(data.pdfExportCount);
+      })
+      .catch(err => {
+        if (err.response?.status !== 404) throw err;
+        setOrg(null);
+      })
+      .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
+
   const card = { border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 28, marginBottom: 20 };
   const currentPlanLabel = cancelled ? 'No active plan' : PLANS[plan].label;
+
+  const USAGE = [
+    { label: 'Sites monitored', value: `${siteCount} / ${org?.siteLimit ?? 0}`, pct: org ? Math.min(100, (siteCount / org.siteLimit) * 100) : 0 },
+    { label: 'Team seats', value: `${memberCount} / ${org?.seatLimit ?? 0}`, pct: org ? Math.min(100, (memberCount / org.seatLimit) * 100) : 0 },
+    { label: 'PDF exports this month', value: `${pdfExportCount}`, pct: null },
+  ];
+
+  if (loading) {
+    return (
+      <AppShell active="billing" maxWidth={880}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', color: SITE_ACCENT }}>Loading…</div>
+      </AppShell>
+    );
+  }
+
+  if (!org) {
+    return (
+      <AppShell active="billing" maxWidth={640}>
+        <div style={card}>
+          <h1 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 8px' }}>No agency workspace yet</h1>
+          <p style={{ fontSize: 13.5, color: theme.textSecondary, margin: '0 0 16px' }}>Create one first, then come back here to manage billing.</p>
+          <Link href="/agency" style={{ color: SITE_ACCENT, fontSize: 13.5, fontWeight: 600 }}>Go to Multi-site →</Link>
+        </div>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell active="billing" maxWidth={880}>
@@ -68,9 +127,11 @@ function BillingBody() {
                 <div key={u.label} style={{ border: `1px solid ${theme.border}`, borderRadius: 6, padding: '14px 16px' }}>
                   <div style={{ fontSize: 11.5, color: theme.textSecondary, marginBottom: 8 }}>{u.label}</div>
                   <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{u.value}</div>
-                  <div style={{ height: 5, borderRadius: 3, background: theme.border, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${u.pct}%`, background: SITE_ACCENT }} />
-                  </div>
+                  {u.pct !== null && (
+                    <div style={{ height: 5, borderRadius: 3, background: theme.border, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${u.pct}%`, background: SITE_ACCENT }} />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -172,7 +233,7 @@ function BillingBody() {
             You&apos;ll keep access to {currentPlanLabel} through the end of your current billing period (Sep 7, 2026), then your sites will stop re-scanning and white-label exports will turn off.
           </p>
           <div style={{ border: '1px solid #E0533C55', borderRadius: 6, background: '#E0533C1a', padding: '20px 22px', marginBottom: 24 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#E0533C', marginBottom: 6 }}>This will affect 12 monitored client sites</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#E0533C', marginBottom: 6 }}>This will affect {siteCount} monitored {siteCount === 1 ? 'site' : 'client sites'}</div>
             <div style={{ fontSize: 13, color: theme.textSecondary, lineHeight: 1.6 }}>Scans stop, reports go stale, and clients relying on your monthly export will notice.</div>
           </div>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
