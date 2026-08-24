@@ -40,10 +40,11 @@ const STATUS_COLOR: Record<string, string> = {
   queued: '#8E918F', running: '#D99E32', completed: '#3CD070', failed: '#E0533C',
 };
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status, theme }: { status: string; theme: { textSecondary: string } }) {
   const c = STATUS_COLOR[status] ?? '#8E918F';
   return (
-    <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: `${c}22`, color: c, textTransform: 'capitalize' }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 600, color: theme.textSecondary, textTransform: 'capitalize' }}>
+      <span style={{ width: 6, height: 6, borderRadius: '50%', background: c, flexShrink: 0 }} />
       {status}
     </span>
   );
@@ -102,7 +103,9 @@ function DashboardBody() {
     ? new Date(user.creditResetDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     : '—';
 
-  const card: React.CSSProperties = { border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 24 };
+  const card: React.CSSProperties = { border: `1px solid ${theme.border}88`, borderRadius: 6, background: theme.card, padding: 24 };
+  const iconWrap: React.CSSProperties = { width: 34, height: 34, borderRadius: 8, border: `1px solid ${theme.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 };
+  const tag: React.CSSProperties = { fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 4, background: theme.bg, color: theme.textSecondary, textTransform: 'capitalize' };
 
   if (loading) {
     return (
@@ -114,21 +117,18 @@ function DashboardBody() {
 
   return (
     <AppShell active="dashboard" maxWidth={1080}>
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 700, margin: 0, letterSpacing: '-0.01em' }}>Welcome back, {user?.name?.split(' ')[0]}!</h1>
-        <p style={{ fontSize: 13.5, color: theme.textSecondary, marginTop: 4 }}>Here&apos;s your Aeorch overview.</p>
+      <div style={{ marginBottom: 36 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 700, margin: 0, letterSpacing: '-0.01em' }}>Overview</h1>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: 20, marginBottom: 28 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" style={{ gap: 24, marginBottom: 36 }}>
         {/* Credits card */}
         <div style={card}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: '#3CD07022', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CreditCard className="w-5 h-5" style={{ color: SITE_ACCENT }} />
+            <div style={iconWrap}>
+              <CreditCard className="w-4 h-4" style={{ color: theme.textSecondary }} />
             </div>
-            <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: theme.bg, color: theme.textSecondary, textTransform: 'capitalize' }}>
-              {user?.plan} plan
-            </span>
+            <span style={tag}>{user?.plan} plan</span>
           </div>
           <div style={{ fontSize: 30, fontWeight: 700, marginBottom: 4 }}>{user?.credits ?? 0}</div>
           <div style={{ fontSize: 13.5, color: theme.textSecondary }}>page credits remaining</div>
@@ -147,12 +147,10 @@ function DashboardBody() {
         {/* Referral card */}
         <div style={card}>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: '#7FB2FF22', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Share2 className="w-5 h-5" style={{ color: '#7FB2FF' }} />
+            <div style={iconWrap}>
+              <Share2 className="w-4 h-4" style={{ color: theme.textSecondary }} />
             </div>
-            <span style={{ fontSize: 11, fontWeight: 600, padding: '2px 8px', borderRadius: 20, background: '#3CD07022', color: SITE_ACCENT }}>
-              {referral?.referralCount ?? 0} referrals
-            </span>
+            <span style={tag}>{referral?.referralCount ?? 0} referrals</span>
           </div>
           <div style={{ fontSize: 30, fontWeight: 700, marginBottom: 4 }}>{referral?.creditsEarned ?? 0}</div>
           <div style={{ fontSize: 13.5, color: theme.textSecondary }}>credits earned from referrals</div>
@@ -181,7 +179,7 @@ function DashboardBody() {
           <div style={{ width: 38, height: 38, borderRadius: 10, background: '#ffffff1a', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
             <Sparkles className="w-5 h-5" style={{ color: '#F9F9F8' }} />
           </div>
-          <h3 style={{ fontWeight: 700, fontSize: 16, color: '#F9F9F8', margin: '0 0 4px' }}>Need more?</h3>
+          <h3 style={{ fontWeight: 700, fontSize: 16, color: '#F9F9F8', margin: '0 0 4px' }}>Upgrade</h3>
           <p style={{ color: '#D7DED9', fontSize: 13.5, margin: '0 0 18px' }}>
             Unlimited credits, API access, scheduled scans, and white-label reports.
           </p>
@@ -196,8 +194,8 @@ function DashboardBody() {
       </div>
 
       {/* Recent scans */}
-      <div style={{ ...card, padding: 0, marginBottom: 24 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', borderBottom: `1px solid ${theme.border}` }}>
+      <div style={{ border: 'none', background: 'transparent', marginBottom: 36 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 0 14px', borderBottom: `1px solid ${theme.border}88` }}>
           <h2 style={{ fontWeight: 700, fontSize: 15, margin: 0 }}>Recent scans</h2>
           <Link href="/scan" className="transition-colors hover:!text-[#5ddb8c]" style={{ fontSize: 13, color: SITE_ACCENT, fontWeight: 600 }}>New scan →</Link>
         </div>
@@ -212,9 +210,9 @@ function DashboardBody() {
         ) : (
           <div>
             {scans.map(scan => (
-              <div key={scan._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: `1px solid ${theme.border}`, gap: 16 }}>
+              <div key={scan._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 0', borderBottom: `1px solid ${theme.border}88`, gap: 16 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
-                  <StatusBadge status={scan.status} />
+                  <StatusBadge status={scan.status} theme={theme} />
                   <div style={{ minWidth: 0 }}>
                     <p style={{ fontSize: 13.5, fontWeight: 600, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{scan.url}</p>
                     <p style={{ fontSize: 11.5, color: theme.textSecondary, margin: 0 }}>{new Date(scan.createdAt).toLocaleDateString()}</p>
@@ -245,8 +243,8 @@ function DashboardBody() {
       {/* Features & Learn links */}
       <div className="grid grid-cols-1 sm:grid-cols-2" style={{ gap: 16 }}>
         <Link href="/features" className="flex items-center transition-colors hover:!border-[#3CD070]" style={{ ...card, gap: 16 }}>
-          <div style={{ width: 38, height: 38, borderRadius: 10, background: '#3CD07022', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Sparkles className="w-5 h-5" style={{ color: SITE_ACCENT }} />
+          <div style={iconWrap}>
+            <Sparkles className="w-4 h-4" style={{ color: theme.textSecondary }} />
           </div>
           <div style={{ minWidth: 0 }}>
             <p style={{ fontWeight: 600, fontSize: 14, margin: 0 }}>Features & Pricing</p>
@@ -255,8 +253,8 @@ function DashboardBody() {
           <ArrowRight className="w-4 h-4" style={{ color: theme.textSecondary, marginLeft: 'auto', flexShrink: 0 }} />
         </Link>
         <Link href="/blog" className="flex items-center transition-colors hover:!border-[#3CD070]" style={{ ...card, gap: 16 }}>
-          <div style={{ width: 38, height: 38, borderRadius: 10, background: '#B57FE022', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <BookOpen className="w-5 h-5" style={{ color: '#B57FE0' }} />
+          <div style={iconWrap}>
+            <BookOpen className="w-4 h-4" style={{ color: theme.textSecondary }} />
           </div>
           <div style={{ minWidth: 0 }}>
             <p style={{ fontWeight: 600, fontSize: 14, margin: 0 }}>Learn</p>
