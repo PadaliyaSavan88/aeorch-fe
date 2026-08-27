@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { LogOut } from 'lucide-react';
+import { LogOut, Sun, Moon } from 'lucide-react';
 import { useSiteTheme } from './SiteThemeProvider';
 import { authApi } from '@/lib/api';
 import { clearTokens } from '@/lib/auth';
@@ -107,12 +107,13 @@ export default function AppSidebar({ active }: { active?: AppNavKey }) {
 
       <button
         onClick={toggleTheme}
-        className="transition-colors hover:!border-[#3CD070] hover:!text-[#F9F9F8] focus:outline focus:outline-2 focus:outline-[#3CD070] focus:outline-offset-2"
+        className="flex items-center gap-2 transition-colors hover:!border-[#3CD070] hover:!text-[#F9F9F8] focus:outline focus:outline-2 focus:outline-[#3CD070] focus:outline-offset-2"
         style={{
           background: 'none', border: '1px solid #ffffff33', color: '#C9D3CC',
           padding: '8px 12px', borderRadius: 6, fontSize: 12, fontWeight: 600, cursor: 'pointer',
         }}
       >
+        {themeName === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
         {themeName === 'dark' ? 'Light mode' : 'Dark mode'}
       </button>
     </aside>
