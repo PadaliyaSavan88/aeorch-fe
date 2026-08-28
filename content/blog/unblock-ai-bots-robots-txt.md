@@ -25,7 +25,7 @@ Unblocking AI crawlers in `robots.txt` is a matter of adding specific `Allow` ru
 
 ## The Core Rule Set
 
-```
+```txt
 User-agent: GPTBot
 Allow: /
 
@@ -58,7 +58,7 @@ OpenAI operates three distinct crawlers with different purposes: `GPTBot` (train
 
 A common concern is that adding these rules exposes the site to unwanted scrapers too. It doesn't — robots.txt matches bots by their declared user-agent string, so a rule scoped to `User-agent: GPTBot` has no effect on any other crawler. You can keep a restrictive wildcard rule for everything else:
 
-```
+```txt
 User-agent: *
 Disallow: /admin/
 Disallow: /account/
@@ -76,7 +76,7 @@ Here, GPTBot and ClaudeBot get full access while the wildcard rule still restric
 
 If you want AI crawlers to access most of your site but exclude certain sections (e.g. user account pages), scope the Disallow under that bot's own block:
 
-```
+```txt
 User-agent: GPTBot
 Allow: /
 Disallow: /account/
@@ -86,7 +86,7 @@ Disallow: /account/
 
 After deploying, fetch the file directly to confirm the live version matches what you expect:
 
-```
+```bash
 curl https://yourdomain.com/robots.txt
 ```
 

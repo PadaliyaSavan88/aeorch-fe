@@ -21,6 +21,8 @@ faq:
     answer: "Run a free scan at Aeorch (/scan). It checks robots.txt AI bot access, llms.txt presence, structured data, and content depth in one pass and returns a prioritized fix list."
 ---
 
+A website is AI-ready when AI crawlers like GPTBot and ClaudeBot can access it, it exposes discovery files such as `llms.txt` and `ai-plugin.json`, and its content carries structured data and trust signals AI models can confidently cite. This guide covers the concrete steps to get there.
+
 ## What Does "AI-Ready" Mean for a Website?
 
 An **AI-ready website** is one that:
@@ -51,7 +53,7 @@ If you see `Disallow: /` under any of these user-agents, those AI engines cannot
 
 To allow all AI bots while still blocking human scrapers, add:
 
-```
+```txt
 User-agent: GPTBot
 Allow: /
 
@@ -71,7 +73,7 @@ Allow: /
 
 Place a file at `yourdomain.com/llms.txt` with the following structure:
 
-```
+```txt
 # Site: Your Website Name
 # Description: What your website is about
 

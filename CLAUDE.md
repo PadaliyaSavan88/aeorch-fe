@@ -45,3 +45,7 @@ Next.js 15 (App Router) + React 19 + TypeScript + Tailwind frontend for Aeorch, 
 - `NEXT_PUBLIC_API_URL` — backend base URL, defaults to `http://localhost:8000/api/v1`.
 - `NEXT_PUBLIC_SITE_URL` — canonical site URL used in metadata/JSON-LD/`llms.txt` generation, defaults to `https://aeorch.com`.
 - `NEXT_PUBLIC_GA_MEASUREMENT_ID` — optional; Google Analytics is only mounted (`app/layout.tsx`) if this is set.
+
+## Style
+
+Avoid emojis and em dashes in anything written for this project — code, comments, commit messages, blog content, docs. No exceptions.

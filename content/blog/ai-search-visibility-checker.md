@@ -43,7 +43,7 @@ Any one of these can make an otherwise well-written page effectively invisible t
 
 The fastest manual check is to open `yourdomain.com/robots.txt` and look for these user-agents:
 
-```
+```txt
 User-agent: GPTBot
 User-agent: OAI-SearchBot
 User-agent: ClaudeBot
@@ -51,7 +51,7 @@ User-agent: PerplexityBot
 User-agent: Google-Extended
 ```
 
-If any show `Disallow: /`, that engine cannot access your site at all — not partially, not with reduced quality, but zero visibility. This is the single highest-impact thing to fix, since every other optimization is irrelevant if the crawler never reaches the page.
+If any show `Disallow: /`, that engine cannot access your site at all: not partially, not with reduced quality, but zero visibility. This is the single highest-impact thing to fix, since every other optimization is irrelevant if the crawler never reaches the page.
 
 ## Why Rendering Matters More Than Most Sites Realize
 

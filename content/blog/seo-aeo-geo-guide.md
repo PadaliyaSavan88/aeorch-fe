@@ -21,15 +21,17 @@ faq:
     answer: "Yes. Aeorch runs a single scan that returns separate SEO, AEO, GEO, Authority, and AI Compatibility scores with prioritized fixes for each."
 ---
 
+SEO, AEO, and GEO are three related but distinct optimization strategies: SEO ranks you in Google and Bing, AEO gets you cited by AI answer engines like ChatGPT and Perplexity, and GEO makes your content trustworthy enough for LLMs to reference directly. A complete strategy in 2025 covers all three.
+
 ## SEO, AEO, and GEO: Why You Need All Three
 
 If you're still only thinking about traditional SEO, you're missing two growing channels that are already redirecting significant amounts of search traffic. In 2025, a complete website optimisation strategy covers:
 
-- **SEO** — Search Engine Optimization (Google, Bing)
-- **AEO** — Answer Engine Optimization (ChatGPT, Perplexity, AI Overviews)
-- **GEO** — Generative Engine Optimization (LLMs, AI content generators)
+- **SEO**: Search Engine Optimization (Google, Bing)
+- **AEO**: Answer Engine Optimization (ChatGPT, Perplexity, AI Overviews)
+- **GEO**: Generative Engine Optimization (LLMs, AI content generators)
 
-Google now serves AI Overviews in the majority of US searches. Perplexity AI reached over 100 million queries per day by late 2024. A 2024 study from Princeton, Georgia Tech, and The Allen Institute ([Aggarwal et al., 2024](https://arxiv.org/abs/2311.09735)) found that specific optimisation techniques — including adding statistics, citing sources, and improving fluency — increased AI citation rates by up to 40%.
+Google now serves AI Overviews in the majority of US searches. Perplexity AI reached over 100 million queries per day by late 2024. A 2024 study from Princeton, Georgia Tech, and The Allen Institute ([Aggarwal et al., 2024](https://arxiv.org/abs/2311.09735)) found that specific optimisation techniques, including adding statistics, citing sources, and improving fluency, increased AI citation rates by up to 40%.
 
 This guide explains each one and how to measure and improve all three simultaneously.
 

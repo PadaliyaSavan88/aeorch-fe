@@ -38,14 +38,14 @@ AEO — Answer Engine Optimization — success means ChatGPT, Perplexity, or Goo
 
 ## Why AI Bot Access Is the Most Common Failure
 
-Of the five signals above, blocked AI crawlers is the single most common — and most damaging — issue a checker finds. Many sites inherited a `robots.txt` written years before GPTBot or ClaudeBot existed, or added a blanket `Disallow: /` rule to stop scrapers without realizing it also blocks the AI engines they now want to be cited by.
+Of the five signals above, blocked AI crawlers is the single most common, and most damaging, issue a checker finds. Many sites inherited a `robots.txt` written years before GPTBot or ClaudeBot existed, or added a blanket `Disallow: /` rule to stop scrapers without realizing it also blocks the AI engines they now want to be cited by.
 
-```
+```txt
 User-agent: GPTBot
 Disallow: /
 ```
 
-A rule like this makes every other AEO signal irrelevant — if the crawler can't fetch the page, no amount of schema markup helps. A checker flags this first because it's a one-line fix with outsized impact: change `Disallow` to `Allow` for the AI user-agents you want to permit.
+A rule like this makes every other AEO signal irrelevant: if the crawler can't fetch the page, no amount of schema markup helps. A checker flags this first because it's a one-line fix with outsized impact: change `Disallow` to `Allow` for the AI user-agents you want to permit.
 
 ## How to Run a Free AEO Check
 

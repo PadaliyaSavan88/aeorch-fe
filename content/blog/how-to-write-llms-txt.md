@@ -28,7 +28,7 @@ faq:
 
 The convention, defined at [llmstxt.org](https://llmstxt.org), is Markdown-based:
 
-```
+```md
 # Site Name
 
 > One or two sentence summary of what the site is and does.
@@ -49,7 +49,7 @@ The H1 is your site name, the blockquote is a short overall summary, and each H2
 
 Here's a trimmed version of Aeorch's own `llms.txt`:
 
-```
+```md
 # Aeorch
 
 > Free SEO, AEO, GEO, Authority and AI Compatibility audit tool. Scan any website and get a scored report with actionable fixes.
@@ -68,7 +68,7 @@ Here's a trimmed version of Aeorch's own `llms.txt`:
 
 ## Where to Host It
 
-Place the file at `yourdomain.com/llms.txt` — root level, same as `robots.txt` and `sitemap.xml`. This predictable location is the entire point of the convention: an AI assistant checks one known path instead of needing site-specific discovery logic.
+Place the file at `yourdomain.com/llms.txt`, root level, same as `robots.txt` and `sitemap.xml`. This predictable location is the entire point of the convention: an AI assistant checks one known path instead of needing site-specific discovery logic.
 
 ## Keeping It Current Without Manual Work
 

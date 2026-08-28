@@ -28,7 +28,7 @@ The fastest way to find out if your site is invisible to ChatGPT, Claude, or Per
 
 Go to `yourdomain.com/robots.txt` in a browser. You're looking for blocks like this:
 
-```
+```txt
 User-agent: GPTBot
 Disallow: /
 
@@ -39,13 +39,13 @@ User-agent: PerplexityBot
 Disallow: /
 ```
 
-Any AI bot listed with `Disallow: /` cannot crawl a single page of your site. There's no partial access — it's a complete block.
+Any AI bot listed with `Disallow: /` cannot crawl a single page of your site. There's no partial access, it's a complete block.
 
 ## Step 2: Check for a Catch-All Block
 
 Even if none of the AI bots are named explicitly, a wildcard rule can still block them:
 
-```
+```txt
 User-agent: *
 Disallow: /
 ```
@@ -67,7 +67,7 @@ This disallows every crawler that doesn't have its own more-specific `Allow` rul
 
 To explicitly allow an AI bot regardless of other rules, add a dedicated block for it:
 
-```
+```txt
 User-agent: GPTBot
 Allow: /
 

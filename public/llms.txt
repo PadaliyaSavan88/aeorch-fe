@@ -14,6 +14,11 @@
 
 ### AEO
 
+- [The Agency's Guide to Explaining AEO/GEO Scores to Clients](https://aeorch.com/blog/explaining-aeo-geo-scores-to-clients): How to explain AEO and GEO scores to non-technical clients without jargon, using analogies and a fixed structure that survives every monthly call.
+- [How to Price an AEO Retainer for Clients](https://aeorch.com/blog/aeo-retainer-pricing-guide): How agencies structure and price an AEO and GEO retainer as a standalone service or an add-on to existing SEO work, with real pricing anchors.
+- [What to Tell a Client When ChatGPT Doesn't Cite Their Site](https://aeorch.com/blog/chatgpt-not-citing-client-site): A script for explaining to a client why ChatGPT or Perplexity isn't citing their site, grounded in the actual technical causes, not a shrug.
+- [White-Label AEO Reports: What Agencies Actually Need](https://aeorch.com/blog/white-label-aeo-reports-for-agencies): What a white-label AEO and GEO report needs to include to survive a client's budget review, and why generic branded PDFs usually fall short.
+- [How Agencies Report AI Search Visibility to Clients](https://aeorch.com/blog/agency-ai-visibility-reporting): A practical framework for agencies to report AEO and GEO visibility to clients: what to track, how to prioritize fixes, and how to present results.
 - [10 Common AEO Mistakes Hurting Your AI Visibility](https://aeorch.com/blog/common-aeo-mistakes): From blocked AI crawlers to hidden FAQ schema, here are 10 AEO mistakes that quietly prevent AI answer engines from citing your content.
 - [HowTo Schema Markup: A Complete AEO Guide](https://aeorch.com/blog/howto-schema-markup-guide): HowTo schema structures step-by-step content for AI extraction. Here's the exact JSON-LD format, required fields, and when not to use it.
 - [How to Add FAQ Schema Markup (Step-by-Step)](https://aeorch.com/blog/faq-schema-markup-guide): FAQPage JSON-LD lets AI engines extract Q&A content directly. Here's the exact markup, where to put it, and common validation mistakes to avoid.
@@ -32,11 +37,13 @@
 
 ### Authority
 
+- [AI Citations: A New Authority Signal for Agencies](https://aeorch.com/blog/ai-citations-authority-signal-for-agencies): Why AI citations belong in an agency's Authority tracking alongside backlinks, and how to explain this newer signal to clients who only know links.
 - [AI Citations: Why They're the New Backlinks](https://aeorch.com/blog/ai-citations-new-backlinks): Being cited in an AI-generated answer functions like a backlink used to — a trust signal and a traffic source. Here's how to earn AI citations.
 - [Website Authority Checker: What It Measures](https://aeorch.com/blog/website-authority-checker): Authority checkers look at trust pages, author transparency, and external validation — signals AI models weigh before citing a source. Here's what to fix.
 
 ### GEO
 
+- [How to Compare a Client's AI Visibility Against Competitors](https://aeorch.com/blog/compare-client-ai-visibility-against-competitors): How agencies benchmark a client's AEO and GEO scores against named competitors, and why relative positioning matters more than an absolute score.
 - [Does Publish Date Affect AEO and GEO Rankings?](https://aeorch.com/blog/content-freshness-ai-search): Publish dates feed GEO's trust signals, but a stale date paired with outdated content hurts more than the date alone. How freshness actually factors in.
 - [How to Improve Your GEO Score: 9 Tactics](https://aeorch.com/blog/improve-geo-score): 9 concrete tactics to raise your GEO score: authorship, dates, citations, content depth, fluency, and more, ranked by typical impact.
 - [How to Get Cited by ChatGPT and Perplexity](https://aeorch.com/blog/optimize-content-for-ai-citations): Concrete content changes that correlate with higher AI citation rates: direct answers, structured Q&A, authorship, and outbound citations of your own.
@@ -46,6 +53,7 @@
 
 ### SEO
 
+- [Multi-Site AI Visibility Monitoring for Agencies](https://aeorch.com/blog/multi-site-ai-visibility-monitoring): Why agencies managing multiple client sites need one dashboard for AEO and GEO scores instead of running separate manual scans per client.
 - [The Complete SEO, AEO, GEO Audit Checklist](https://aeorch.com/blog/complete-website-audit-checklist): A single checklist covering SEO, AEO, GEO, Authority, and AI Compatibility — five dimensions, one scan, ranked by what to fix first.
 - [Local SEO and AEO for Small Businesses](https://aeorch.com/blog/local-seo-aeo-small-business): AI assistants now answer 'best plumber near me' directly. Here's how small businesses get cited, beyond just a Google Business Profile.
 - [SaaS SEO in 2026: Ranking When AI Answers](https://aeorch.com/blog/saas-seo-ai-search): When AI assistants answer 'best tool for X' directly, SaaS SEO needs comparison-ready content and structured data more than keyword-stuffed landing pages.

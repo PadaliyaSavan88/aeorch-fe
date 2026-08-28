@@ -13,16 +13,18 @@ keywords:
   - "aeo score"
 faq:
   - question: "What does AEO stand for?"
-    answer: "AEO stands for Answer Engine Optimization — the practice of structuring content so AI answer engines like ChatGPT, Perplexity, and Google AI Overviews can accurately extract and cite it."
+    answer: "AEO stands for Answer Engine Optimization, the practice of structuring content so AI answer engines like ChatGPT, Perplexity, and Google AI Overviews can accurately extract and cite it."
   - question: "Is AEO the same as SEO?"
     answer: "No. SEO optimizes for ranking in a list of search results; AEO optimizes for being directly quoted or paraphrased inside an AI-generated answer. They share tactics like structured data, but the goal and format differ."
   - question: "How do I check my AEO score for free?"
     answer: "Run a free scan at Aeorch (/scan). It checks FAQPage schema, question-based headings, HowTo schema, Article schema, Speakable schema, and BreadcrumbList schema, then returns a 0-100 AEO score with fixes."
 ---
 
+AEO, or Answer Engine Optimization, is the practice of structuring website content so AI-powered answer engines such as ChatGPT and Perplexity can accurately extract, summarize, and cite it as a source. It differs from traditional SEO by optimizing for direct citation rather than search rankings.
+
 ## What is AEO (Answer Engine Optimization)?
 
-**AEO** — Answer Engine Optimization — is the practice of structuring your website content so that AI-powered answer engines can accurately extract, summarize, and cite your information in their responses.
+**AEO**, Answer Engine Optimization, is the practice of structuring your website content so that AI-powered answer engines can accurately extract, summarize, and cite your information in their responses.
 
 Answer engines include:
 - **ChatGPT** (OpenAI)
