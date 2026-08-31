@@ -144,6 +144,16 @@ export const organizationApi = {
     api.get(`/organizations/${orgId}/sites/${siteId}/compare`),
 };
 
+// ─── AI Citation Tracking ───────────────────────────────────────────────────
+
+export const citationApi = {
+  trigger: (orgId: string, siteId: string) =>
+    api.post(`/organizations/${orgId}/sites/${siteId}/citations`),
+
+  get: (orgId: string, siteId: string) =>
+    api.get(`/organizations/${orgId}/sites/${siteId}/citations`),
+};
+
 // ─── Contact ──────────────────────────────────────────────────────────────────
 
 export const contactApi = {

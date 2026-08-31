@@ -7,12 +7,13 @@ import { useSiteTheme } from './SiteThemeProvider';
 import { authApi } from '@/lib/api';
 import { clearTokens } from '@/lib/auth';
 
-export type AppNavKey = 'dashboard' | 'agency' | 'competitors' | 'export' | 'settings' | 'billing';
+export type AppNavKey = 'dashboard' | 'agency' | 'competitors' | 'citations' | 'export' | 'settings' | 'billing';
 
 const NAV: { key: AppNavKey; href: string; label: string; badge?: string }[] = [
   { key: 'dashboard', href: '/dashboard', label: 'Dashboard' },
   { key: 'agency', href: '/agency', label: 'Multi-site' },
   { key: 'competitors', href: '/agency/competitors', label: 'Competitors' },
+  { key: 'citations', href: '/agency/citations', label: 'AI Citations' },
   { key: 'export', href: '/agency/export', label: 'Export' },
   { key: 'settings', href: '/agency/settings', label: 'Settings' },
   { key: 'billing', href: '/agency/billing', label: 'Billing' },

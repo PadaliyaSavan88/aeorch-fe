@@ -7,7 +7,7 @@ import {
   CheckCircle2, XCircle, Info,
   Bot, FileText, Globe, Search, Cpu, BookOpen, ShieldCheck,
 } from 'lucide-react';
-import { scanApi } from '@/lib/api';
+import { scanApi, organizationApi } from '@/lib/api';
 import SiteThemeProvider, { useSiteTheme } from '@/components/site/SiteThemeProvider';
 import AppShell from '@/components/site/AppShell';
 import { SITE_ACCENT } from '@/lib/siteTheme';
@@ -287,27 +287,81 @@ function TopIssuesSection({ topIssues }: { topIssues: TopIssue[] }) {
   );
 }
 
-// ─── AI Citation Tracking (preview — not real data, see report/[id] plan notes) ─
+// ─── AI Citation Tracking teaser ────────────────────────────────────────────
+// Real AI citation tracking is Site/Organization-scoped and Agency-plan-exclusive
+// (see docs/adr/0002-ai-citation-tracking.md in the backend repo). It doesn't
+// live on this per-scan report the way the old dummy preview implied. This
+// teaser checks whether the signed-in user's org (if any) already tracks this
+// exact URL as a Site and links straight to the real feature; otherwise it's
+// honest that the feature isn't available here rather than showing fake data.
 
-function CitationPreview() {
+type CitationTeaserState =
+  | { kind: 'loading' }
+  | { kind: 'no-org' }
+  | { kind: 'not-agency' }
+  | { kind: 'site-match'; orgId: string; siteId: string }
+  | { kind: 'no-match' };
+
+function useCitationTeaserState(url: string): CitationTeaserState {
+  const [state, setState] = useState<CitationTeaserState>({ kind: 'loading' });
+
+  useEffect(() => {
+    let cancelled = false;
+    organizationApi.getMine()
+      .then((res) => {
+        if (cancelled) return;
+        const org = res.data.data.organization;
+        const sites: { _id: string; url: string }[] = res.data.data.sites;
+        if (org.plan !== 'agency') { setState({ kind: 'not-agency' }); return; }
+        const match = sites.find((s) => s.url === url);
+        setState(match ? { kind: 'site-match', orgId: org._id, siteId: match._id } : { kind: 'no-match' });
+      })
+      .catch(() => { if (!cancelled) setState({ kind: 'no-org' }); });
+    return () => { cancelled = true; };
+  }, [url]);
+
+  return state;
+}
+
+function CitationTeaser({ url }: { url: string }) {
   const { theme } = useSiteTheme();
-  const bars = Array.from({ length: 12 }, (_, i) => i < 3);
+  const state = useCitationTeaserState(url);
+
+  if (state.kind === 'loading') return null; // avoid a flash before the org check resolves
+
+  const body: React.CSSProperties = { border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 24 };
+
+  if (state.kind === 'site-match') {
+    return (
+      <div style={body}>
+        <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>AI citation tracking</div>
+        <p style={{ fontSize: 13.5, color: theme.textSecondary, lineHeight: 1.6, margin: '0 0 16px' }}>
+          This site is tracked in your agency workspace, see whether it&apos;s mentioned when your self-hosted model is asked about it.
+        </p>
+        <Link
+          href={`/agency/citations?siteId=${state.siteId}`}
+          className="transition-colors hover:!text-[#5ddb8c]"
+          style={{ fontSize: 13, fontWeight: 600, color: SITE_ACCENT }}
+        >
+          View citation checks →
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: 24 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
-        <div style={{ fontSize: 16, fontWeight: 700 }}>Authority — AI citation tracking</div>
-        <span style={{ fontSize: 10.5, fontWeight: 700, color: '#D99E32', background: '#D99E3226', padding: '2px 8px', borderRadius: 20, textTransform: 'uppercase', letterSpacing: '.04em' }}>
-          Preview
-        </span>
-      </div>
+    <div style={body}>
+      <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>AI citation tracking</div>
       <p style={{ fontSize: 13.5, color: theme.textSecondary, lineHeight: 1.6, margin: '0 0 16px' }}>
-        Upcoming feature — how often models cite this site as a source across tracked prompts. Illustrative example below; not yet measuring live data for this scan. The real Authority checks (trust pages, HTTPS, social links, Organization schema) are still scored in Detailed Analysis below.
+        Whether an AI model mentions this site when asked relevant questions: a recurring check available for sites tracked in an Agency workspace. Not measured for this one-off scan.
       </p>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        {bars.map((cited, i) => (
-          <div key={i} style={{ width: 16, height: 32, borderRadius: 3, background: cited ? '#3CD070' : theme.border }} />
-        ))}
-      </div>
+      <Link
+        href="/agency"
+        className="transition-colors hover:!text-[#5ddb8c]"
+        style={{ fontSize: 13, fontWeight: 600, color: SITE_ACCENT }}
+      >
+        {state.kind === 'no-org' ? 'Set up an agency workspace →' : 'Add this site to track it →'}
+      </Link>
     </div>
   );
 }
@@ -705,9 +759,9 @@ function ReportBody({ id }: { id: string }) {
         <TopIssuesSection topIssues={report.topIssues ?? []} />
       </Section>
 
-      {/* AI Citation Tracking (preview) */}
+      {/* AI Citation Tracking */}
       <Section title="AI Citation Tracking">
-        <CitationPreview />
+        <CitationTeaser url={url} />
       </Section>
 
       {/* AI Engine Access Matrix */}
