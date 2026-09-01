@@ -46,6 +46,10 @@ Next.js 15 (App Router) + React 19 + TypeScript + Tailwind frontend for Aeorch, 
 - `NEXT_PUBLIC_SITE_URL` — canonical site URL used in metadata/JSON-LD/`llms.txt` generation, defaults to `https://aeorch.com`.
 - `NEXT_PUBLIC_GA_MEASUREMENT_ID` — optional; Google Analytics is only mounted (`app/layout.tsx`) if this is set.
 
+## Git workflow
+
+`.github/CODEOWNERS` names the default owner. Real GitHub branch protection on `main` needs a paid plan for a private repo (this repo is private on the free plan), so it's not actually enabled, this is policy-only. Follow it anyway: always work on a new, purpose-named branch; when asked to "push," push that branch and open a PR against `main` rather than merging it, unless separately, explicitly told to merge. No mandatory approval count is configured (GitHub blocks a PR author from approving their own PR), so merging the PR is itself the approval step. Full rule lives in the root `CLAUDE.md`.
+
 ## Style
 
 Avoid emojis and em dashes in anything written for this project — code, comments, commit messages, blog content, docs. No exceptions.
