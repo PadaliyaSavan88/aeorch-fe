@@ -155,8 +155,8 @@ Target keywords are hypotheses. **Before drafting, check search volume and diffi
 
 | # | Date | Title (H1) | Slug | Primary keyword | Cluster | Audience | Intent | Status |
 |---|---|---|---|---|---|---|---|---|
-| 1 | 2026-09-29 | Best AEO Tools for Agencies in 2026 (Compared) | best-aeo-tools-for-agencies | aeo tools for agencies | A | Agency | BOFU | todo |
-| 2 | 2026-10-01 | AEOChecker.ai Alternative for Agencies: Aeorch vs AEO Checker | aeochecker-alternative | aeo checker alternative | A | Agency | BOFU | todo |
+| 1 | 2026-09-29 | Best AEO Tools for Agencies in 2026 (Compared) | best-aeo-tools-for-agencies | aeo tools for agencies | A | Agency | BOFU | review (PR open, publishedAt 2026-09-29) |
+| 2 | 2026-10-01 | AEOChecker.ai Alternative for Agencies: Aeorch vs AEO Checker | aeochecker-alternative | aeo checker alternative | A | Agency | BOFU | review (PR open, publishedAt 2026-09-29) |
 | 3 | 2026-10-06 | AI Share of Voice: How to Measure Competitors in ChatGPT & Perplexity | ai-share-of-voice | ai share of voice | B | All | MOFU | todo |
 | 4 | 2026-10-08 | Free AEO Audit Template for Agencies (Google Sheet) | aeo-audit-template | aeo audit template | D | Agency/Freelancer | MOFU | todo |
 | 5 | 2026-10-13 | How to Sell AEO Services to Your Existing SEO Clients | sell-aeo-services | how to sell aeo services | C | Agency | MOFU | todo |
