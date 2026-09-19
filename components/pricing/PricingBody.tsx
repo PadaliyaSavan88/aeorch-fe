@@ -14,6 +14,7 @@ const STARTER_FEATURES = [
 
 const AGENCY_FEATURES = [
   'Up to 15 client sites',
+  '5 team seats',
   'Everything in Starter',
   'Competitor comparison',
   'White-label PDF export',
@@ -26,7 +27,7 @@ const FAQS = [
   { q: 'Can I switch plans later?', a: 'Yes, upgrade or downgrade anytime, billing prorates automatically.' },
   { q: 'What counts as a "site"?', a: 'One root domain. Subdomains you monitor separately count as additional sites.' },
   { q: 'Do you offer white-label branding on Starter?', a: 'White-label PDF export is an Agency-tier feature, Starter reports carry the Aeorch mark.' },
-  { q: 'Is there a free option?', a: 'Yes, the llm.txt generator is free with no login. Full scans require a plan.' },
+  { q: 'Is there a free option?', a: 'Yes. The llms.txt generator is free with no login, and every account starts with 20 free page credits (1 credit scores 1 page) across all 5 audit dimensions.' },
 ];
 
 function PlanCard({

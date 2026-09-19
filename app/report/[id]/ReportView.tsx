@@ -780,7 +780,7 @@ function ReportBody({ id }: { id: string }) {
       {aiMeta && (
         <Section title="AI Compatibility Files">
           <div style={{ border: `1px solid ${theme.border}`, borderRadius: 6, background: theme.card, padding: '0 20px' }}>
-            <FileStatusRow has={!!aiMeta.hasLlmTxt} name="/llm.txt" />
+            <FileStatusRow has={!!aiMeta.hasLlmTxt} name="/llms.txt" />
             {aiMeta.hasLlmsFullTxt !== undefined && <FileStatusRow has={!!aiMeta.hasLlmsFullTxt} name="/llms-full.txt" />}
             <FileStatusRow has={!!aiMeta.hasAiPluginJson} name="/.well-known/ai-plugin.json" />
           </div>

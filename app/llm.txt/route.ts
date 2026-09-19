@@ -13,7 +13,7 @@ Aeorch crawls a website via its sitemap, analyses each page, and returns scored 
 1. **SEO Score** — title tags, meta descriptions, H1 structure, canonical URLs, Open Graph tags
 2. **AEO Score** — FAQPage schema, HowTo schema, Article schema, question-based headings, Speakable markup
 3. **GEO Score** — content depth (minimum word count), named author attribution, publication dates, external citations, definitional sentences
-4. **AI Compatibility Score** — checks 14 major AI bot user-agents in robots.txt, presence of llm.txt and ai-plugin.json
+4. **AI Compatibility Score** — checks 14 major AI bot user-agents in robots.txt, presence of llms.txt and ai-plugin.json
 5. **Authority Score** — About, Contact, and Privacy pages presence
 
 ## Main Pages
@@ -33,7 +33,7 @@ Aeorch crawls a website via its sitemap, analyses each page, and returns scored 
 
 ## Pricing
 
-- Free plan: 20 page credits per month, all 5 audit dimensions, full HTML report, auto-generated llm.txt and ai-plugin.json
+- Free plan: 20 page credits per month, all 5 audit dimensions, full HTML report, auto-generated llms.txt and ai-plugin.json
 - Referral programme: +20 credits for referrer and referee, no cap
 - Premium: unlimited credits, API access, scheduled scans, white-label reports (contact via /contact page)
 

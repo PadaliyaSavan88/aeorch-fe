@@ -105,7 +105,7 @@ Aeorch checks all three dimensions simultaneously in a single scan, giving you:
 - An **SEO score** (title, meta, H1, canonical, OG tags)
 - An **AEO score** (FAQ, HowTo, Article, question headings)
 - A **GEO score** (depth, authorship, dates, citations)
-- An **AI Compatibility score** (bot access, llm.txt, ai-plugin.json)
+- An **AI Compatibility score** (bot access, llms.txt, ai-plugin.json)
 - An **Authority score** (About, Contact, Privacy pages)
 
 Each score comes with specific issues and prioritized recommendations, so you know exactly what to fix first.

@@ -43,7 +43,7 @@ const faqJsonLd = {
     { '@type': 'Question', name: 'Can I switch plans later?', acceptedAnswer: { '@type': 'Answer', text: 'Yes, upgrade or downgrade anytime, billing prorates automatically.' } },
     { '@type': 'Question', name: 'What counts as a "site"?', acceptedAnswer: { '@type': 'Answer', text: 'One root domain. Subdomains you monitor separately count as additional sites.' } },
     { '@type': 'Question', name: 'Do you offer white-label branding on Starter?', acceptedAnswer: { '@type': 'Answer', text: 'White-label PDF export is an Agency-tier feature, Starter reports carry the Aeorch mark.' } },
-    { '@type': 'Question', name: 'Is there a free option?', acceptedAnswer: { '@type': 'Answer', text: 'Yes, the llm.txt generator is free with no login. Full scans require a plan.' } },
+    { '@type': 'Question', name: 'Is there a free option?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. The llms.txt generator is free with no login, and every account starts with 20 free page credits (1 credit scores 1 page) across all 5 audit dimensions.' } },
   ],
 };
 
