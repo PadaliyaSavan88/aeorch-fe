@@ -311,7 +311,7 @@ This matches what `lib/blog.ts` and `app/blog/[slug]/page.tsx` actually read. Do
 ```markdown
 ---
 title: "<H1>"
-description: "<150 to 160 char meta description with primary keyword>"
+description: "<meta description with primary keyword, 155 characters or fewer>"
 publishedAt: "<YYYY-MM-DD>"
 author: "Aeorch Team"
 category: "<AEO|GEO|SEO|AI Compatibility|Authority>"
@@ -359,6 +359,7 @@ Before writing, open one existing post (for example `content/blog/what-is-aeo.md
 - [ ] CTA matches the funnel stage
 - [ ] No emojis, no em or en dashes anywhere
 - [ ] `llms.txt` spelled with an "s" everywhere
+- [ ] `node scripts/check-blog-checklist.mjs` passes (title 60 characters or fewer, description 155 or fewer, and the other deployment checks)
 - [ ] `npm run lint` and `npm run build` pass (the build also regenerates `public/llms.txt`)
 - [ ] Section 6 status updated; older related posts updated to link to this one
 
