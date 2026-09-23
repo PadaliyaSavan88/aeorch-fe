@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "e2e": "node scripts/e2e-full-flow.mjs",
+    "seo:check": "node scripts/check-indexing.mjs",
     "llms:generate": "node scripts/generate-llms-txt.mjs"
   },
   "dependencies": {

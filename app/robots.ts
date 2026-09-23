@@ -5,11 +5,9 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aeorch.com';
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      {
-        userAgent: '*',
-        allow: '/',
-        disallow: ['/dashboard', '/scan', '/report/'],
-      },
+      // App Pages stay out of search via a noindex meta tag, not a disallow:
+      // Google cannot see noindex on a URL it is blocked from crawling.
+      { userAgent: '*', allow: '/' },
       // Explicitly allow all major AI bots
       { userAgent: 'GPTBot', allow: '/' },
       { userAgent: 'OAI-SearchBot', allow: '/' },
