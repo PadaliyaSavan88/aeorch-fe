@@ -12,6 +12,7 @@ Next.js 15 (App Router) + React 19 + TypeScript + Tailwind frontend for Aeorch, 
 - `npm run build` — runs `prebuild` (`scripts/generate-llms-txt.mjs`) then `next build`.
 - `npm run lint` — `next lint`.
 - `npm run e2e` — Puppeteer full-flow test (`scripts/e2e-full-flow.mjs`); see below.
+- `npm run seo:check` - fetch-based indexing guard (`scripts/check-indexing.mjs`): every sitemap URL is crawlable, self-canonical and indexable; every App Page has noindex and no canonical. Needs only the frontend running; point it elsewhere with `BASE_URL`.
 - No unit test suite exists in this repo.
 - Requires the backend running at `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:8000/api/v1`) for any page that calls the API.
 
