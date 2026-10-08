@@ -7,12 +7,12 @@ import FreeToolBody from '@/components/free-tool/FreeToolBody';
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aeorch.com';
 
 export const metadata: Metadata = {
-  title: 'Free llm.txt Generator — Aeorch',
-  description: 'Generate an llm.txt and ai-plugin.json starter template for any domain, free, no login required.',
+  title: 'Free llms.txt Generator — Aeorch',
+  description: 'Generate an llms.txt and ai-plugin.json starter template for any domain, free, no login required.',
   alternates: { canonical: `${siteUrl}/free-tool` },
   openGraph: {
-    title: 'Free llm.txt Generator — Aeorch',
-    description: 'Generate an llm.txt and ai-plugin.json starter template for any domain, free, no login required.',
+    title: 'Free llms.txt Generator — Aeorch',
+    description: 'Generate an llms.txt and ai-plugin.json starter template for any domain, free, no login required.',
     url: `${siteUrl}/free-tool`,
   },
 };
@@ -29,7 +29,7 @@ const breadcrumbJsonLd = {
 const webPageJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  name: 'Free llm.txt Generator — Aeorch',
+  name: 'Free llms.txt Generator — Aeorch',
   url: `${siteUrl}/free-tool`,
   datePublished: '2026-08-18',
   dateModified: '2026-08-18',
@@ -39,10 +39,10 @@ const webPageJsonLd = {
 const howToJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'HowTo',
-  name: 'How to generate an llm.txt file for your site',
+  name: 'How to generate an llms.txt file for your site',
   step: [
     { '@type': 'HowToStep', name: 'Paste your site URL', text: 'No login or credits required — just the domain you want to check.' },
-    { '@type': 'HowToStep', name: 'Aeorch checks AI-crawler access', text: 'We check whether major AI bots (GPTBot, ClaudeBot, Google-Extended, PerplexityBot) can access your site, and whether llm.txt and ai-plugin.json already exist.' },
+    { '@type': 'HowToStep', name: 'Aeorch checks AI-crawler access', text: 'We check whether major AI bots (GPTBot, ClaudeBot, Google-Extended, PerplexityBot) can access your site, and whether llms.txt and ai-plugin.json already exist.' },
     { '@type': 'HowToStep', name: 'Download or copy the generated files', text: 'If either file is missing, Aeorch generates it from your site so you can drop it straight in.' },
   ],
 };
@@ -52,9 +52,9 @@ const faqJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: [
-    { '@type': 'Question', name: 'Is the llm.txt generator really free?', acceptedAnswer: { '@type': 'Answer', text: 'Yes — no login, no scan credits, no card required. Every check is free.' } },
-    { '@type': 'Question', name: 'What does the free tool check?', acceptedAnswer: { '@type': 'Answer', text: 'It checks whether major AI bots can access your site, and whether you already have an llm.txt and ai-plugin.json file.' } },
-    { '@type': 'Question', name: 'What if my site already has these files?', acceptedAnswer: { '@type': 'Answer', text: "You'll see a confirmation that llm.txt and ai-plugin.json are already present — nothing to generate." } },
+    { '@type': 'Question', name: 'Is the llms.txt generator really free?', acceptedAnswer: { '@type': 'Answer', text: 'Yes — no login, no scan credits, no card required. Every check is free.' } },
+    { '@type': 'Question', name: 'What does the free tool check?', acceptedAnswer: { '@type': 'Answer', text: 'It checks whether major AI bots can access your site, and whether you already have an llms.txt and ai-plugin.json file.' } },
+    { '@type': 'Question', name: 'What if my site already has these files?', acceptedAnswer: { '@type': 'Answer', text: "You'll see a confirmation that llms.txt and ai-plugin.json are already present — nothing to generate." } },
   ],
 };
 

@@ -14,14 +14,14 @@ interface BotAccessResult {
 
 const STEPS = [
   { title: 'Paste your site URL', description: 'No login or credits required — just the domain you want to check.' },
-  { title: 'Aeorch checks AI-crawler access', description: 'We check whether major AI bots (GPTBot, ClaudeBot, Google-Extended, PerplexityBot) can access your site, and whether llm.txt and ai-plugin.json already exist.' },
+  { title: 'Aeorch checks AI-crawler access', description: 'We check whether major AI bots (GPTBot, ClaudeBot, Google-Extended, PerplexityBot) can access your site, and whether llms.txt and ai-plugin.json already exist.' },
   { title: 'Download or copy the generated files', description: 'If either file is missing, Aeorch generates it from your site so you can drop it straight in.' },
 ];
 
 const FAQS = [
-  { q: 'Is the llm.txt generator really free?', a: 'Yes — no login, no scan credits, no card required. Every check is free.' },
-  { q: 'What does the free tool check?', a: 'It checks whether major AI bots can access your site, and whether you already have an llm.txt and ai-plugin.json file.' },
-  { q: 'What if my site already has these files?', a: "You'll see a confirmation that llm.txt and ai-plugin.json are already present — nothing to generate." },
+  { q: 'Is the llms.txt generator really free?', a: 'Yes — no login, no scan credits, no card required. Every check is free.' },
+  { q: 'What does the free tool check?', a: 'It checks whether major AI bots can access your site, and whether you already have an llms.txt and ai-plugin.json file.' },
+  { q: 'What if my site already has these files?', a: "You'll see a confirmation that llms.txt and ai-plugin.json are already present — nothing to generate." },
 ];
 
 interface CheckResult {
@@ -67,7 +67,7 @@ export default function FreeToolBody() {
   const aiPluginJsonText = result?.generatedAiPluginJson ? JSON.stringify(result.generatedAiPluginJson, null, 2) : '';
   const filesToGenerate = result
     ? [
-        ...(!result.hasLlmTxt ? [{ name: 'llm.txt', content: result.generatedLlmTxt }] : []),
+        ...(!result.hasLlmTxt ? [{ name: 'llms.txt', content: result.generatedLlmTxt }] : []),
         ...(!result.hasAiPluginJson ? [{ name: 'ai-plugin.json', content: aiPluginJsonText }] : []),
       ]
     : [];
@@ -92,9 +92,9 @@ export default function FreeToolBody() {
         <div style={{ display: 'inline-block', fontSize: 12, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase', color: '#D99E32', background: '#D99E3226', padding: '6px 14px', borderRadius: 20, marginBottom: 20 }}>
           Free · no login
         </div>
-        <h1 style={{ fontSize: 38, fontWeight: 700, letterSpacing: '-0.02em', margin: '0 0 14px' }}>llm.txt generator</h1>
+        <h1 style={{ fontSize: 38, fontWeight: 700, letterSpacing: '-0.02em', margin: '0 0 14px' }}>llms.txt generator</h1>
         <p style={{ fontSize: 16, color: theme.textSecondary, margin: '0 0 32px', lineHeight: 1.6 }}>
-          Check whether AI crawlers can access your site, then generate an llm.txt and ai-plugin.json to fix it. Free every time, no scan credits, no signup.
+          Check whether AI crawlers can access your site, then generate an llms.txt and ai-plugin.json to fix it. Free every time, no scan credits, no signup.
         </p>
       </section>
 
@@ -144,17 +144,17 @@ export default function FreeToolBody() {
 
             {filesToGenerate.length === 0 ? (
               <div style={{ padding: 24, textAlign: 'center', fontSize: 13.5, color: '#3CD070', fontWeight: 500 }}>
-                ✓ llm.txt and ai-plugin.json are already present — nothing to generate.
+                ✓ llms.txt and ai-plugin.json are already present — nothing to generate.
               </div>
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2">
                   <div style={{ padding: 20, borderRight: `1px solid ${theme.border}` }}>
                     <div style={{ fontSize: 11, fontWeight: 600, color: theme.textSecondary, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 10 }}>
-                      llm.txt {result.hasLlmTxt && '✓ found'}
+                      llms.txt {result.hasLlmTxt && '✓ found'}
                     </div>
                     {result.hasLlmTxt ? (
-                      <p style={{ fontSize: 13, color: theme.textSecondary, margin: 0 }}>Already present at /llm.txt.</p>
+                      <p style={{ fontSize: 13, color: theme.textSecondary, margin: 0 }}>Already present at /llms.txt.</p>
                     ) : (
                       <pre style={{ margin: 0, fontFamily: 'ui-monospace,monospace', fontSize: 12.5, lineHeight: 1.7, color: theme.textPrimary, whiteSpace: 'pre-wrap' }}>{result.generatedLlmTxt}</pre>
                     )}

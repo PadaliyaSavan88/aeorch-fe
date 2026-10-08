@@ -68,7 +68,7 @@ const howToJsonLd = {
       '@type': 'HowToStep',
       position: 3,
       name: 'Fix issues and download AI files',
-      text: 'Apply the actionable recommendations and download auto-generated llm.txt and ai-plugin.json files to boost AI discoverability instantly.',
+      text: 'Apply the actionable recommendations and download auto-generated llms.txt and ai-plugin.json files to boost AI discoverability instantly.',
       url: `${siteUrl}/#how-it-works`,
     },
   ],
@@ -83,9 +83,9 @@ const faqJsonLd = {
     { '@type': 'Question', name: 'What is the difference between SEO, AEO and GEO?', acceptedAnswer: { '@type': 'Answer', text: 'SEO targets traditional search engines like Google for ranked results. AEO targets AI answer engines (ChatGPT, Perplexity, AI Overviews) for direct citations using structured data like FAQPage and HowTo schemas. GEO targets LLMs for content generation trust, using signals like authorship, depth, and external citations.' } },
     { '@type': 'Question', name: 'How do I improve my AEO score?', acceptedAnswer: { '@type': 'Answer', text: 'To improve your AEO score: (1) Add FAQPage structured data to Q&A pages, (2) Use question-based H2/H3 headings (What, How, Why), (3) Add HowTo and Article schema for instructional content, (4) Write concise direct answers after each question heading, (5) Ensure AI bots like GPTBot and ClaudeBot can crawl your site via robots.txt.' } },
     { '@type': 'Question', name: 'How do I check my GEO relevance score?', acceptedAnswer: { '@type': 'Answer', text: 'Aeorch checks your GEO score by analyzing content depth (minimum word count per page), definitional sentences ("What is X"), statistical references, named author attribution, publication dates, and external citations to authoritative sources. Each signal contributes to your GEO score out of 100.' } },
-    { '@type': 'Question', name: 'What is an llm.txt file and why do I need one?', acceptedAnswer: { '@type': 'Answer', text: 'An llm.txt file (at yourdomain.com/llm.txt) tells AI models which pages on your site are most important and how to summarise your content — similar to robots.txt but designed for large language models. Aeorch auto-generates a complete llm.txt from your crawled pages.' } },
+    { '@type': 'Question', name: 'What is an llms.txt file and why do I need one?', acceptedAnswer: { '@type': 'Answer', text: 'An llms.txt file (at yourdomain.com/llms.txt) tells AI models which pages on your site are most important and how to summarise your content — similar to robots.txt but designed for large language models. Aeorch auto-generates a complete llms.txt from your crawled pages.' } },
     { '@type': 'Question', name: 'Is Aeorch a free SEO audit tool?', acceptedAnswer: { '@type': 'Answer', text: 'Yes — Aeorch is free with 20 page credits per month. One credit equals one page scanned. You earn an additional 20 credits for every friend you refer (and they get 20 too). There is no credit card required.' } },
-    { '@type': 'Question', name: 'How is Aeorch different from other SEO audit tools?', acceptedAnswer: { '@type': 'Answer', text: 'Most SEO tools only audit traditional Google signals. Aeorch is built for the AI era — it audits AEO (Answer Engine Optimization), GEO (Generative Engine Optimization), and AI Compatibility alongside classic SEO. It checks whether 10+ major AI bots including GPTBot, ClaudeBot, Google-Extended, and PerplexityBot can access your site, and generates llm.txt and ai-plugin.json files automatically.' } },
+    { '@type': 'Question', name: 'How is Aeorch different from other SEO audit tools?', acceptedAnswer: { '@type': 'Answer', text: 'Most SEO tools only audit traditional Google signals. Aeorch is built for the AI era — it audits AEO (Answer Engine Optimization), GEO (Generative Engine Optimization), and AI Compatibility alongside classic SEO. It checks whether 10+ major AI bots including GPTBot, ClaudeBot, Google-Extended, and PerplexityBot can access your site, and generates llms.txt and ai-plugin.json files automatically.' } },
   ],
 };
 
